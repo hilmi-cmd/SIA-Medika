@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIA Dokter Umum - Persediaan & Piutang</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <header>
+    <h2>SIA Praktik Dokter Umum</h2>
+    <p>Manajemen Persediaan, Jasa Medis, dan Piutang Asuransi</p>
+  </header>
+
+  <main class="container">
+    <!-- Section Ringkasan Laporan Akuntansi -->
+    <section class="summary-grid">
+      <div class="summary-card total-pendapatan">
+        <h4>Total Pendapatan (Kas Lunas)</h4>
+        <p id="stat-pendapatan">Rp 0</p>
+      </div>
+      <div class="summary-card total-piutang">
+        <h4>Total Piutang Asuransi</h4>
+        <p id="stat-piutang">Rp 0</p>
+      </div>
+      <div class="summary-card total-omset">
+        <h4>Total Omset/Omzet</h4>
+        <p id="stat-omset">Rp 0</p>
+      </div>
+    </section>
+
+    <!-- Section Stok Persediaan -->
+    <section class="card">
+      <h3>Stok Persediaan Obat & Alkes</h3>
+      <table id="table-persediaan">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nama Item</th>
+            <th>Kategori</th>
+            <th>Stok</th>
+            <th>Harga Satuan</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Section Input Transaksi Medis -->
+    <section class="card">
+      <h3>Input Transaksi Medis</h3>
+      <form id="form-transaksi">
+        <label for="select-pasien">Pasien:</label>
+        <select id="select-pasien" required>
+          <option value="">-- Pilih Pasien --</option>
+        </select>
+
+        <label for="select-item">Item Obat / Alkes:</label>
+        <select id="select-item" required>
+          <option value="">-- Pilih Obat/Alkes --</option>
+        </select>
+
+        <label for="jumlah-item">Jumlah Obat/Alkes:</label>
+        <input type="number" id="jumlah-item" value="1" min="1" required>
+
+        <label for="biaya-jasa">Biaya Jasa Dokter (Rp):</label>
+        <input type="number" id="biaya-jasa" value="50000" required>
+
+        <label for="status-pembayaran">Status Pembayaran:</label>
+        <select id="status-pembayaran">
+          <option value="Lunas">Lunas (Tunai)</option>
+          <option value="Piutang Asuransi">Piutang Asuransi</option>
+        </select>
+
+        <button type="submit">Proses Transaksi</button>
+      </form>
+    </section>
+
+    <!-- Section Laporan Pendapatan & Piutang Asuransi -->
+    <section class="card">
+      <h3>Laporan Pendapatan & Piutang Asuransi</h3>
+      <table id="table-transaksi">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tanggal</th>
+            <th>Pasien</th>
+            <th>Penjamin / Asuransi</th>
+            <th>Item Obat</th>
+            <th>Biaya Jasa</th>
+            <th>Total Biaya</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script type="module" src="../js/app.js"></script>
+</body>
+</html>
