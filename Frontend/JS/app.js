@@ -12,14 +12,13 @@ const statPendapatan = document.querySelector('#stat-pendapatan');
 const statPiutang = document.querySelector('#stat-piutang');
 const statOmset = document.querySelector('#stat-omset');
 
-// Elemen Tombol Reset (Baru)
+// Elemen Tombol Reset
 const btnResetSummary = document.querySelector('#btn-reset-summary');
 const btnResetLaporan = document.querySelector('#btn-reset-laporan');
 
 // Helper Function: Update Angka Ringkasan Laporan
 function updateSummaryCards(totalKasLunas, totalPiutangAsuransi) {
   const totalOmset = totalKasLunas + totalPiutangAsuransi;
-  
   if (statPendapatan) statPendapatan.innerText = `Rp ${totalKasLunas.toLocaleString('id-ID')}`;
   if (statPiutang) statPiutang.innerText = `Rp ${totalPiutangAsuransi.toLocaleString('id-ID')}`;
   if (statOmset) statOmset.innerText = `Rp ${totalOmset.toLocaleString('id-ID')}`;
@@ -28,51 +27,60 @@ function updateSummaryCards(totalKasLunas, totalPiutangAsuransi) {
 // 1. Ambil & Tampilkan Data Persediaan
 async function loadPersediaan() {
   const { data, error } = await supabase.from('persediaan').select('*');
-  if (error) return console.error('Error fetching persediaan:', error);
+  if (error) {
+    console.error('Error fetching persediaan:', error);
+    return;
+  }
 
   if (tablePersediaan) tablePersediaan.innerHTML = '';
   if (selectItem) selectItem.innerHTML = '<option value="">-- Pilih Obat/Alkes --</option>';
 
-  data.forEach(item => {
-    const hargaJual = item.harga_jual || item.harga_satuan || 0;
+  if (data && data.length > 0) {
+    data.forEach(item => {
+      const hargaJual = item.harga_jual || item.harga_satuan || 0;
 
-    if (tablePersediaan) {
-      tablePersediaan.innerHTML += `
-        <tr>
-          <td>${item.id_item}</td>
-          <td>${item.nama_item}</td>
-          <td>${item.kategori || '-'}</td>
-          <td>${item.stok || 0}</td>
-          <td>Rp ${Number(hargaJual).toLocaleString('id-ID')}</td>
-        </tr>
-      `;
-    }
+      if (tablePersediaan) {
+        tablePersediaan.innerHTML += `
+          <tr>
+            <td>${item.id_item}</td>
+            <td>${item.nama_item}</td>
+            <td>${item.kategori || '-'}</td>
+            <td>${item.stok || 0}</td>
+            <td>Rp ${Number(hargaJual).toLocaleString('id-ID')}</td>
+          </tr>
+        `;
+      }
 
-    if (selectItem && item.kategori !== 'Jasa Medis') {
-      selectItem.innerHTML += `<option value="${item.id_item}" data-harga="${hargaJual}" data-stok="${item.stok}">${item.nama_item} (Stok: ${item.stok})</option>`;
-    }
-  });
+      if (selectItem && item.kategori !== 'Jasa Medis') {
+        selectItem.innerHTML += `<option value="${item.id_item}" data-harga="${hargaJual}" data-stok="${item.stok}">${item.nama_item} (Stok: ${item.stok})</option>`;
+      }
+    });
+  }
 }
 
 // 2. Ambil & Tampilkan Data Pasien
 async function loadPasien() {
   const { data, error } = await supabase.from('pasien').select('*');
-  if (error) return console.error('Error fetching pasien:', error);
+  if (error) {
+    console.error('Error fetching pasien:', error);
+    return;
+  }
 
   if (selectPasien) {
     selectPasien.innerHTML = '<option value="">-- Pilih Pasien --</option>';
 
-    data.forEach(p => {
-      const nama = p.nama_pasien || p.nama || 'Tanpa Nama';
-      const penjamin = p.penjamin || p.jenis_asuransi || 'Umum';
-      selectPasien.innerHTML += `<option value="${p.id_pasien}">${nama} (${penjamin})</option>`;
-    });
+    if (data && data.length > 0) {
+      data.forEach(p => {
+        const nama = p.nama_pasien || p.nama || 'Tanpa Nama';
+        const penjamin = p.penjamin || p.jenis_asuransi || 'Umum';
+        selectPasien.innerHTML += `<option value="${p.id_pasien}">${nama} (${penjamin})</option>`;
+      });
+    }
   }
 }
 
 // 3. Ambil Data Transaksi & Tampilkan ke Tabel Laporan
 async function loadTransaksi() {
-  // Ambil data transaksi beserta relasi ke tabel pasien dan persediaan
   const { data, error } = await supabase
     .from('transaksi_medis')
     .select(`
@@ -112,7 +120,7 @@ async function fetchTransaksiSimple() {
   renderTableAndSummary(data || []);
 }
 
-// Fungsi Render Tabel Transaksi dan Hitung Total Pendapatan/Piutang/Omset
+// Fungsi Render Tabel Transaksi dan Hitung Total
 function renderTableAndSummary(data) {
   let totalKasLunas = 0;
   let totalPiutangAsuransi = 0;
@@ -134,14 +142,12 @@ function renderTableAndSummary(data) {
       const status = t.status_pembayaran ? t.status_pembayaran.trim() : 'Lunas';
       const isPiutang = status === 'Piutang Asuransi';
 
-      // Hitung ringkasan akuntansi
       if (isPiutang) {
         totalPiutangAsuransi += total;
       } else {
         totalKasLunas += total;
       }
 
-      // Render ke tabel
       if (tableTransaksi) {
         const namaPasien = t.pasien?.nama_pasien || t.pasien?.nama || `Pasien ID #${t.id_pasien || '-'}`;
         const penjamin = t.pasien?.penjamin || t.pasien?.jenis_asuransi || 'Umum';
@@ -172,10 +178,8 @@ function renderTableAndSummary(data) {
     });
   }
 
-  // Update Tampilan Angka Card (Pendapatan, Piutang, Omset)
   updateSummaryCards(totalKasLunas, totalPiutangAsuransi);
 
-  // Pasang Event Listener Tombol Pelunasan
   document.querySelectorAll('.btn-lunasi').forEach(button => {
     button.addEventListener('click', (e) => {
       const idTx = e.target.dataset.id;
@@ -231,7 +235,6 @@ if (formTransaksi) {
 
     const totalBiaya = (jumlah * hargaSatuan) + biayaJasa;
 
-    // Insert Transaksi Ke Supabase
     const { error: errTx } = await supabase.from('transaksi_medis').insert([
       {
         id_pasien: idPasien,
@@ -248,7 +251,6 @@ if (formTransaksi) {
       return;
     }
 
-    // Update Stok Persediaan
     await supabase
       .from('persediaan')
       .update({ stok: stokSekarang - jumlah })
@@ -262,40 +264,26 @@ if (formTransaksi) {
   });
 }
 
-// -------------------------------------------------------------
-// 6. FITUR BARRU: RESET PERHITUNGAN & LAPORAN
-// -------------------------------------------------------------
-
-// A. Reset Hanya Perhitungan Tampilan Summary (Pendapatan, Piutang, Omset)
+// 6. Tombol Reset
 if (btnResetSummary) {
   btnResetSummary.addEventListener('click', () => {
-    const konfirmasi = confirm('Reset angka perhitungan summary (Pendapatan, Piutang, Omset) ke Rp 0?');
-    if (konfirmasi) {
+    if (confirm('Reset angka perhitungan summary ke Rp 0?')) {
       updateSummaryCards(0, 0);
-      alert('Perhitungan angka ringkasan telah direset ke 0.');
     }
   });
 }
 
-// B. Reset Seluruh Data Laporan Transaksi dari Database Supabase
 if (btnResetLaporan) {
   btnResetLaporan.addEventListener('click', async () => {
-    const konfirmasi = confirm('PERHATIAN: Apakah Anda yakin ingin menghapus SELURUH data transaksi medis di database? Tindakan ini tidak dapat dibatalkan.');
-    if (!konfirmasi) return;
-
-    // Menghapus seluruh baris data pada tabel transaksi_medis
-    const { error } = await supabase
-      .from('transaksi_medis')
-      .delete()
-      .neq('id_transaksi', 0); // Menghapus semua ID yang bukan 0
-
-    if (error) {
-      alert('Gagal mereset laporan transaksi: ' + error.message);
-      return;
+    if (confirm('PERHATIAN: Hapus seluruh data transaksi di database?')) {
+      const { error } = await supabase.from('transaksi_medis').delete().neq('id_transaksi', 0);
+      if (error) {
+        alert('Gagal mereset: ' + error.message);
+        return;
+      }
+      loadTransaksi();
+      loadPersediaan();
     }
-
-    alert('Seluruh data laporan transaksi berhasil dihapus/direset!');
-    loadTransaksi(); // Reload tabel & ringkasan otomatis
   });
 }
 
