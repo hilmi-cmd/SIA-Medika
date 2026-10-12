@@ -1,87 +1,94 @@
-/* WELCOME PAGE STYLING */
-.welcome-card {
-  background: linear-gradient(135deg, #0f766e 0%, #1e293b 100%);
-  color: #ffffff;
-  padding: 36px 40px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-/* --- ROOT VARIABLES --- */
-:root {
-  --primary-color: #0d9488;
-  --text-dark: #0f172a;
-  --text-muted: #64748b;
-  --card-bg: #ffffff;
-  --border-color: #e2e8f0;
-}
-
-/* --- BODY STYLING --- */
+/* --- LAYOUT UTAMA & SIDEBAR --- */
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
   margin: 0;
   padding: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #f8fafc;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.welcome-text h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 12px;
+/* Sidebar Kiri */
+.sidebar {
+  width: 260px;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
 }
 
-.welcome-text p {
-  font-size: 0.95rem;
-  color: #cbd5e1;
-  max-width: 700px;
-  line-height: 1.6;
-}
-
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-top: 8px;
-}
-
-/* QUICK ACTIONS GRID */
-.quick-actions-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.action-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+.sidebar-brand {
   padding: 24px;
-  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sidebar-brand h2 {
+  font-size: 1.2rem;
+  color: #0d9488;
+  margin: 0;
+}
+
+.sidebar-nav {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
-.action-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary-color);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+.nav-item:hover, .nav-item.active {
+  background-color: #f0fdfa;
+  color: #0d9488;
 }
 
-.action-icon {
-  font-size: 2.2rem;
-  color: var(--primary-color);
-  margin-bottom: 12px;
+/* Wrapper Kanan (Konten Utama) */
+.main-wrapper {
+  margin-left: 260px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
 }
 
-.action-card h4 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 6px;
+.top-header {
+  background: #ffffff;
+  padding: 20px 32px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.action-card p {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.4;
+.container {
+  padding: 32px;
+}
+
+/* Sifat Halaman (Tab) */
+.page-content {
+  display: none;
+}
+
+.page-content.active {
+  display: block;
 }
