@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIA Dokter Umum - Persediaan & Piutang</title>
+  
+  <!-- Path Folder Menggunakan Huruf Kecil Konsisten -->
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <!-- Font Google & Icon -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+
+  <!-- Sidebar Navigasi Kiri -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="material-symbols-outlined icon">local_hospital</span>
+      <h2>SIA Medika</h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="switchPage('welcome', this)">
+        <span class="material-symbols-outlined">home</span>
+        <span>Beranda</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('dashboard', this)">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <span>Stok Persediaan</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('transaksi', this)">
+        <span class="material-symbols-outlined">edit_note</span>
+        <span>Input Transaksi</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('laporan', this)">
+        <span class="material-symbols-outlined">payments</span>
+        <span>Laporan & Piutang</span>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Konten Utama Side Kanan -->
+  <div class="main-wrapper">
+    <!-- Top Header Bar -->
+    <header class="top-header">
+      <div class="header-title">
+        <h2>SIA Praktik Dokter Umum</h2>
+        <p>Manajemen Persediaan, Jasa Medis, dan Piutang Asuransi</p>
+      </div>
+      <div class="status-badge">
+        <span class="dot"></span> System Ready
+      </div>
+    </header>
+
+    <main class="container">
+      
+      <!-- PAGE 0: WELCOME PAGE -->
+      <div id="page-welcome" class="page-content active">
+        <div class="welcome-card">
+          <h1>Selamat Datang di SIA Medika 👋</h1>
+          <p>Sistem Informasi Akuntansi untuk mengelola persediaan obat, transaksi medis harian, dan pencatatan piutang asuransi praktik dokter Anda secara efisien.</p>
+        </div>
+
+        <h3 class="section-title">Akses Cepat</h3>
+        <div class="quick-actions-grid">
+          <div class="action-card" onclick="switchPageByName('dashboard')">
+            <span class="material-symbols-outlined action-icon">inventory_2</span>
+            <h4>Stok Persediaan</h4>
+            <p>Cek ketersediaan dan harga satuan obat & alkes saat ini.</p>
+          </div>
+          <div class="action-card" onclick="switchPageByName('transaksi')">
+            <span class="material-symbols-outlined action-icon">post_add</span>
+            <h4>Input Transaksi</h4>
+            <p>Catat pelayanan medis, penggunaan obat, dan skema pembayaran.</p>
+          </div>
+          <div class="action-card" onclick="switchPageByName('laporan')">
+            <span class="material-symbols-outlined action-icon">receipt_long</span>
+            <h4>Laporan & Piutang</h4>
+            <p>Pantau laporan pendapatan kas serta klaim piutang asuransi.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 1: STOK PERSEDIAAN -->
+      <div id="page-dashboard" class="page-content">
+        <section class="card">
+          <div class="card-header">
+            <h3>Stok Persediaan Obat & Alkes</h3>
+          </div>
+          <table id="table-persediaan">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nama Item</th>
+                <th>Kategori</th>
+                <th>Stok</th>
+                <th>Harga Satuan</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- PAGE 2: INPUT TRANSAKSI MEDIS -->
+      <div id="page-transaksi" class="page-content">
+        <section class="card">
+          <div class="card-header">
+            <h3>Input Transaksi Medis</h3>
+          </div>
+          <form id="form-transaksi">
+            <div class="form-group">
+              <label for="select-pasien">Pasien:</label>
+              <select id="select-pasien" required>
+                <option value="">-- Pilih Pasien --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="select-item">Item Obat / Alkes:</label>
+              <select id="select-item" required>
+                <option value="">-- Pilih Obat/Alkes --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="jumlah-item">Jumlah Obat/Alkes:</label>
+              <input type="number" id="jumlah-item" value="1" min="1" required>
+            </div>
+
+            <div class="form-group">
+              <label for="biaya-jasa">Biaya Jasa Dokter (Rp):</label>
+              <input type="number" id="biaya-jasa" value="50000" required>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="status-pembayaran">Status Pembayaran:</label>
+              <select id="status-pembayaran">
+                <option value="Lunas">Lunas (Tunai)</option>
+                <option value="Piutang Asuransi">Piutang Asuransi</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn-primary">Proses Transaksi</button>
+          </form>
+        </section>
+      </div>
+
+      <!-- PAGE 3: LAPORAN PENDAPATAN & PIUTANG -->
+      <div id="page-laporan" class="page-content">
+        <section class="summary-grid">
+          <div class="summary-card">
+            <h4>Total Pendapatan (Kas Lunas)</h4>
+            <p id="stat-pendapatan">Rp 0</p>
+          </div>
+          <div class="summary-card">
+            <h4>Total Piutang Asuransi</h4>
+            <p id="stat-piutang">Rp 0</p>
+          </div>
+          <div class="summary-card highlight">
+            <h4>Total Omset / Omzet</h4>
+            <p id="stat-omset">Rp 0</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h3>Laporan Pendapatan & Piutang Asuransi</h3>
+          </div>
+          <table id="table-transaksi">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tanggal</th>
+                <th>Pasien</th>
+                <th>Penjamin / Asuransi</th>
+                <th>Item Obat</th>
+                <th>Biaya Jasa</th>
+                <th>Total Biaya</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          <div class="reset-actions">
+            <button id="btn-reset-summary" type="button" class="btn-secondary">Reset Perhitungan Summary</button>
+            <button id="btn-reset-laporan" type="button" class="btn-danger">Reset Seluruh Laporan Transaksi</button>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- SCRIPT NAVIGASI TAB -->
+  <script>
+    function switchPage(pageName, element) {
+      document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById('page-' + pageName).classList.add('active');
+      if (element) {
+        element.classList.add('active');
+      }
+    }
+
+    function switchPageByName(pageName) {
+      const navItems = document.querySelectorAll('.nav-item');
+      let targetNav = navItems[0];
+      if (pageName === 'dashboard') targetNav = navItems[1];
+      if (pageName === 'transaksi') targetNav = navItems[2];
+      if (pageName === 'laporan') targetNav = navItems[3];
+      
+      switchPage(pageName, targetNav);
+    }
+  </script>
+
+  <!-- Path Script Menggunakan Huruf Kecil Konsisten -->
+  <script type="module" src="../js/app.js"></script>
+</body>
+</html>

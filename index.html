@@ -4,93 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIA Medika - Praktik Dokter Umum</title>
-  <!-- Meta tag pengalihan otomatis ke folder frontend setelah 2 detik -->
-  <meta http-equiv="refresh" content="2; url=Frontend/HTML/index.html">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+  <!-- Mengarahkan otomatis ke folder frontend yang berhuruf kecil semua -->
+  <meta http-equiv="refresh" content="1; url=frontend/html/index.html">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
     body {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background: #0f172a;
       color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif, -apple-system, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      padding: 20px;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
     }
-    .redirect-card {
+    .card {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
       padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      max-width: 480px;
-      width: 100%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      max-width: 400px;
     }
-    .icon-box {
-      font-size: 3rem;
-      margin-bottom: 16px;
-    }
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #2dd4bf;
-    }
-    p {
-      color: #94a3b8;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid rgba(45, 212, 191, 0.2);
-      border-top: 3px solid #2dd4bf;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .btn {
-      display: inline-block;
-      background-color: #0d9488;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-    .btn:hover {
-      background-color: #0f766e;
-    }
+    h2 { color: #2dd4bf; margin-bottom: 10px; }
+    p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
+    a { display: inline-block; background: #0d9488; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; }
   </style>
 </head>
 <body>
-
-  <div class="redirect-card">
-    <div class="icon-box">🏥</div>
-    <h1>SIA Medika</h1>
-    <p>Sistem Informasi Akuntansi Pendapatan Jasa Medis & Piutang Asuransi. Anda sedang dialihkan ke sistem...</p>
-    <div class="spinner"></div>
-    <a href="Frontend/HTML/index.html" class="btn">Masuk ke Aplikasi Sekarang</a>
+  <div class="card">
+    <h2>SIA Medika</h2>
+    <p>Sedang memuat sistem informasi akuntansi...</p>
+    <a href="frontend/html/index.html">Masuk Aplikasi</a>
   </div>
-
 </body>
 </html>
