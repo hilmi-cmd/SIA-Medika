@@ -275,12 +275,35 @@ if (btnResetSummary) {
 
 if (btnResetLaporan) {
   btnResetLaporan.addEventListener('click', async () => {
-    if (confirm('PERHATIAN: Hapus seluruh data transaksi di database?')) {
-      const { error } = await supabase.from('transaksi_medis').delete().neq('id_transaksi', 0);
-      if (error) {
-        alert('Gagal mereset: ' + error.message);
+    if (confirm('PERHATIAN: Hapus seluruh data transaksi dan kembalikan stok obat ke jumlah awal?')) {
+      
+      // 1. Hapus seluruh data transaksi di database
+      const { error: errDel } = await supabase.from('transaksi_medis').delete().neq('id_transaksi', 0);
+      if (errDel) {
+        alert('Gagal menghapus transaksi: ' + errDel.message);
         return;
       }
+
+      // 2. Kembalikan stok obat/alkes ke jumlah awal (sesuaikan ID item dan stok awal Anda)
+      const stokAwalList = [
+        { id_item: 1, stok: 5 },   // Paracetamol 500mg
+        { id_item: 2, stok: 10 },  // Amoxicillin 500mg
+        { id_item: 3, stok: 8 },   // Vitamin C 500mg
+        { id_item: 4, stok: 5 },   // Ibuprofen 400mg
+        { id_item: 5, stok: 100 }, // Spuit 3cc / Jarum
+        { id_item: 6, stok: 2 }    // Kasa Steril Box
+      ];
+
+      for (let item of stokAwalList) {
+        await supabase
+          .from('persediaan')
+          .update({ stok: item.stok })
+          .eq('id_item', item.id_item);
+      }
+
+      alert('Laporan berhasil direset dan stok obat kembali ke jumlah awal!');
+      
+      // 3. Muat ulang data di halaman
       loadTransaksi();
       loadPersediaan();
     }
