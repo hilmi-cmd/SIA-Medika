@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIA Dokter Umum - Persediaan & Piutang</title>
-  <!-- Ganti path relatif dengan path absolut sesuai nama repository GitHub Anda -->
-  <link rel="stylesheet" href="/SIA-Medika/Frontend/CSS/style.css">
+  
+  <!-- Path Relatif CSS yang Pasti Terbaca di GitHub Pages & Lokal -->
+  <link rel="stylesheet" href="../css/style.css">
   
   <!-- Font Google & Icon -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -197,9 +198,7 @@
     </main>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- LETAKKAN SCRIPT NAVIGASI DI SINI (SEBELUM PENUTUP BODY) -->
-  <!-- ========================================================= -->
+  <!-- SCRIPT NAVIGASI TAB -->
   <script>
     function switchPage(pageName, element) {
       document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -222,7 +221,7 @@
     }
   </script>
 
-  <!-- Script Aplikasi Utama -->
-  <script type="module" src="/SIA-Medika/Frontend/JS/app.js"></script>
+  <!-- Path Relatif JS -->
+  <script type="module" src="../js/app.js"></script>
 </body>
 </html>
