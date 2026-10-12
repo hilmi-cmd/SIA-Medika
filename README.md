@@ -2,6 +2,8 @@
 
 SIA Medika adalah aplikasi berbasis web (*Web-Based Accounting Information System*) yang dirancang khusus untuk mengelola pencatatan keuangan operasional pada praktik dokter umum atau klinik mandiri. Sistem ini berfokus pada manajemen persediaan obat/alkes, pencatatan transaksi layanan medis harian, serta pemantauan siklus piutang klaim asuransi (seperti BPJS Kesehatan dan asuransi swasta).
 
+Demo Web: https://hilmi-cmd.github.io/SIA-Medika/
+
 ---
 
 ## 🚀 Fitur Utama Sistem
