@@ -221,91 +221,108 @@
     }
   </script>
 
-  <!-- Tambahkan pada bagian Navigasi Tab -->
-<nav class="nav-tabs">
-    <button onclick="switchTab('statistik')" class="tab-btn active">Statistik</button>
-    <button onclick="switchTab('buku-besar')" class="tab-btn">Buku Besar</button>
-    <button onclick="switchTab('jurnal')" class="tab-btn">Debit / Kredit (Jurnal)</button>
-    <!-- Tab lain yang sudah ada (Pasien, Persediaan, dll) -->
-</nav>
+  <!-- Bagian dalam kontainer utama index.html (sesuaikan dengan struktur wrapper Anda) -->
+<div class="main-content">
+    
+    <!-- Header Halaman -->
+    <header class="page-header">
+        <h1>SIA Praktik Dokter Umum</h1>
+        <p>Manajemen Persediaan, Jasa Medis, dan Piutang Asuransi</p>
+    </header>
 
-<!-- Tab 1: Statistik -->
-<section id="statistik" class="tab-content active">
-    <h2>Statistik & Ringkasan Keuangan</h2>
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>Total Pendapatan Jasa Medis</h3>
-            <p id="stat-total-revenue">Rp 0</p>
-        </div>
-        <div class="stat-card">
-            <h3>Total Kunjungan Pasien</h3>
-            <p id="stat-total-patients">0 Pasien</p>
-        </div>
-        <div class="stat-card">
-            <h3>Total Piutang Asuransi</h3>
-            <p id="stat-total-receivable">Rp 0</p>
-        </div>
-    </div>
-</section>
+    <!-- TAB NAVIGASI UTAMA (Gabungkan tab lama dan tab baru di sini agar sejajar) -->
+    <nav class="nav-tabs" style="margin: 20px 0; display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+        <button onclick="switchTab('beranda')" class="tab-btn active">Beranda</button>
+        <button onclick="switchTab('persediaan')" class="tab-btn">Stok Persediaan</button>
+        <button onclick="switchTab('transaksi')" class="tab-btn">Input Transaksi</button>
+        <button onclick="switchTab('laporan')" class="tab-btn">Laporan & Piutang</button>
+        <!-- Tab Baru yang Terintegrasi -->
+        <button onclick="switchTab('statistik')" class="tab-btn">Statistik</button>
+        <button onclick="switchTab('buku-besar')" class="tab-btn">Buku Besar</button>
+        <button onclick="switchTab('jurnal')" class="tab-btn">Debit / Kredit (Jurnal)</button>
+    </nav>
 
-<!-- Tab 2: Buku Besar -->
-<section id="buku-besar" class="tab-content" style="display:none;">
-    <h2>Buku Besar (General Ledger)</h2>
-    <div class="filter-container">
-        <label for="filter-account">Pilih Akun:</label>
-        <select id="filter-account" onchange="loadGeneralLedger()">
-            <!-- Options dimuat via JS -->
-        </select>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Tanggal</th>
-                <th>Referensi</th>
-                <th>Keterangan</th>
-                <th>Debit (Rp)</th>
-                <th>Kredit (Rp)</th>
-                <th>Saldo (Rp)</th>
-            </tr>
-        </thead>
-        <tbody id="ledger-table-body">
-            <!-- Data Buku Besar dimuat via JS -->
-        </tbody>
-    </table>
-</section>
+    <!-- KONTEN TAB: 1. Statistik -->
+    <section id="statistik" class="tab-content" style="display: none;">
+        <h2>Statistik & Ringkasan Keuangan</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Pendapatan Jasa Medis</h3>
+                <p id="stat-total-revenue">Rp 0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Kunjungan Pasien</h3>
+                <p id="stat-total-patients">0 Pasien</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Piutang Asuransi</h3>
+                <p id="stat-total-receivable">Rp 0</p>
+            </div>
+        </div>
+    </section>
 
-<!-- Tab 3: Debit & Kredit (Jurnal Umum) -->
-<section id="jurnal" class="tab-content" style="display:none;">
-    <h2>Entri Jurnal Transaksi (Debit & Kredit)</h2>
-    <form id="journal-form" onsubmit="submitJournal(event)">
-        <div class="form-group">
-            <label>Tanggal:</label>
-            <input type="date" id="jurnal-date" required>
+    <!-- KONTEN TAB: 2. Buku Besar -->
+    <section id="buku-besar" class="tab-content" style="display: none;">
+        <h2>Buku Besar (General Ledger)</h2>
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="filter-account">Pilih Akun:</label>
+            <select id="filter-account" onchange="loadGeneralLedger()" class="form-control">
+                <!-- Dinamis via JS -->
+            </select>
         </div>
-        <div class="form-group">
-            <label>No. Referensi:</label>
-            <input type="text" id="jurnal-ref" placeholder="Cth: TRX-001" required>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Referensi</th>
+                        <th>Keterangan</th>
+                        <th>Debit (Rp)</th>
+                        <th>Kredit (Rp)</th>
+                        <th>Saldo (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-table-body">
+                    <tr><td colspan="6" style="text-align: center;">Memuat data...</td></tr>
+                </tbody>
+            </table>
         </div>
-        <div class="form-group">
-            <label>Keterangan / Deskripsi:</label>
-            <input type="text" id="jurnal-desc" placeholder="Keterangan transaksi..." required>
-        </div>
-        <div class="form-group">
-            <label>Akun:</label>
-            <select id="jurnal-account" required></select>
-        </div>
-        <div class="form-group">
-            <label>Debit (Rp):</label>
-            <input type="number" id="jurnal-debit" value="0" step="0.01" oninput="validateBalance()">
-        </div>
-        <div class="form-group">
-            <label>Kredit (Rp):</label>
-            <input type="number" id="jurnal-credit" value="0" step="0.01" oninput="validateBalance()">
-        </div>
-        <p id="balance-warning" style="color: red; font-size: 0.9rem;"></p>
-        <button type="submit" class="btn-primary">Simpan Transaksi</button>
-    </form>
-</section>
+    </section>
+
+    <!-- KONTEN TAB: 3. Debit / Kredit (Jurnal) -->
+    <section id="jurnal" class="tab-content" style="display: none;">
+        <h2>Entri Jurnal Transaksi (Debit & Kredit)</h2>
+        <form id="journal-form" onsubmit="submitJournal(event)" class="card-form">
+            <div class="form-group">
+                <label>Tanggal:</label>
+                <input type="date" id="jurnal-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>No. Referensi:</label>
+                <input type="text" id="jurnal-ref" placeholder="Cth: TRX-001" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Keterangan / Deskripsi:</label>
+                <input type="text" id="jurnal-desc" placeholder="Keterangan transaksi..." class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Akun:</label>
+                <select id="jurnal-account" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+                <label>Debit (Rp):</label>
+                <input type="number" id="jurnal-debit" value="0" step="0.01" class="form-control" oninput="validateBalance()">
+            </div>
+            <div class="form-group">
+                <label>Kredit (Rp):</label>
+                <input type="number" id="jurnal-credit" value="0" step="0.01" class="form-control" oninput="validateBalance()">
+            </div>
+            <p id="balance-warning" style="color: #dc2626; font-size: 0.9rem; margin-bottom: 10px;"></p>
+            <button type="submit" class="btn-primary">Simpan Transaksi</button>
+        </form>
+    </section>
+
+</div>
 
   <!-- Path Script Menggunakan Huruf Kecil Konsisten -->
   <script type="module" src="../js/app.js"></script>
