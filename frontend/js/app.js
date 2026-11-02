@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadInventoryData();
 });
 
+// 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => {
         el.style.display = 'none';
@@ -27,6 +28,7 @@ function switchTab(tabId) {
     } else if (tabId === 'transaksi' || tabId === 'laporan') {
         loadPatientDropdown();
         loadInventoryDropdown();
+        if (tabId === 'laporan') loadReportData();
     } else if (tabId === 'statistik') {
         loadStatistics();
     } else if (tabId === 'buku-besar') {
@@ -36,9 +38,9 @@ function switchTab(tabId) {
     }
 }
 
+// 2. Fungsi Mengambil Data Stok Persediaan dari Supabase
 async function loadInventoryData() {
     try {
-        // Menggunakan window.supabaseClient agar aman dari error 'not defined'
         const client = window.supabaseClient || supabaseClient;
         const { data, error } = await client.from('persediaan').select('*');
         
@@ -73,6 +75,7 @@ async function loadInventoryData() {
     }
 }
 
+// 3. Fungsi Dropdown Pasien
 async function loadPatientDropdown() {
     try {
         const client = window.supabaseClient || supabaseClient;
@@ -91,6 +94,7 @@ async function loadPatientDropdown() {
     }
 }
 
+// 4. Fungsi Dropdown Obat
 async function loadInventoryDropdown() {
     try {
         const client = window.supabaseClient || supabaseClient;
@@ -109,6 +113,7 @@ async function loadInventoryDropdown() {
     }
 }
 
+// 5. Fungsi Statistik Keuangan
 async function loadStatistics() {
     try {
         const client = window.supabaseClient || supabaseClient;
@@ -136,6 +141,7 @@ async function loadStatistics() {
     }
 }
 
+// 6. Fungsi Buku Besar & Akun
 async function loadAccountDropdown() {
     const client = window.supabaseClient || supabaseClient;
     const { data: accounts, error } = await client.from('accounts').select('*');
@@ -193,6 +199,72 @@ async function loadGeneralLedger() {
     });
 }
 
+// 7. Transaksi & Laporan
+async function submitTransaction(event) {
+    event.preventDefault();
+    const client = window.supabaseClient || supabaseClient;
+
+    const pasienId = document.getElementById('pasien').value;
+    const obatId = document.getElementById('item-obat').value;
+    const jumlah = parseInt(document.getElementById('jumlah-obat').value) || 1;
+    const biayaDokter = parseFloat(document.getElementById('biaya-dokter').value) || 0;
+    const status = document.getElementById('status-pembayaran').value;
+
+    try {
+        const { error } = await client.from('transaksi').insert([{
+            pasien_id: pasienId,
+            item_id: obatId,
+            jumlah_obat: jumlah,
+            biaya_dokter: biayaDokter,
+            status_pembayaran: status,
+            tanggal: new Date().toISOString().split('T')[0]
+        }]);
+
+        if (error) throw error;
+
+        alert("Transaksi berhasil diproses!");
+        document.getElementById('transaction-form').reset();
+    } catch (err) {
+        console.error("Gagal menyimpan transaksi:", err.message);
+        alert("Gagal memproses transaksi: " + err.message);
+    }
+}
+
+async function loadReportData() {
+    try {
+        const client = window.supabaseClient || supabaseClient;
+        const { data, error } = await client.from('transaksi').select('*, pasien(nama_pasien)');
+        
+        if (error) throw error;
+
+        const tbody = document.getElementById('report-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data transaksi atau piutang.</td></tr>`;
+            return;
+        }
+
+        data.forEach(trx => {
+            const namaPasien = trx.pasien?.nama_pasien || trx.pasien_id || 'Umum';
+            const totalBiaya = (trx.biaya_dokter || 0);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${trx.tanggal || '-'}</td>
+                    <td>${namaPasien}</td>
+                    <td>Medis & Resep</td>
+                    <td>Rp ${Number(totalBiaya).toLocaleString('id-ID')}</td>
+                    <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; background: ${trx.status_pembayaran === 'Lunas' ? '#d1fae5; color: #065f46;' : '#fef3c7; color: #92400e;'}">${trx.status_pembayaran || 'Lunas'}</span></td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Gagal memuat laporan:", err.message);
+    }
+}
+
+// 8. Validasi & Submit Jurnal
 function validateBalance() {
     const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
     const credit = parseFloat(document.getElementById('jurnal-credit').value) || 0;
@@ -222,75 +294,3 @@ async function submitJournal(event) {
         document.getElementById('journal-form').reset();
     }
 }
-// Fungsi Menyimpan Transaksi Medis Baru
-async function submitTransaction(event) {
-    event.preventDefault();
-    const client = window.supabaseClient || supabaseClient;
-
-    const pasienId = document.getElementById('pasien').value;
-    const obatId = document.getElementById('item-obat').value;
-    const jumlah = parseInt(document.getElementById('jumlah-obat').value) || 1;
-    const biayaDokter = parseFloat(document.getElementById('biaya-dokter').value) || 0;
-    const status = document.getElementById('status-pembayaran').value;
-
-    try {
-        // Simpan ke tabel transaksi (sesuaikan nama kolom dengan database Anda)
-        const { error } = await client.from('transaksi').insert([{
-            pasien_id: pasienId,
-            item_id: obatId,
-            jumlah_obat: jumlah,
-            biaya_dokter: biayaDokter,
-            status_pembayaran: status,
-            tanggal: new Date().toISOString().split('T')[0]
-        }]);
-
-        if (error) throw error;
-
-        alert("Transaksi berhasil diproses!");
-        document.getElementById('transaction-form').reset();
-    } catch (err) {
-        console.error("Gagal menyimpan transaksi:", err.message);
-        alert("Gagal memproses transaksi: " + err.message);
-    }
-}
-
-// Fungsi Memuat Data Laporan & Piutang
-async function loadReportData() {
-    try {
-        const client = window.supabaseClient || supabaseClient;
-        const { data, error } = await client.from('transaksi').select('*, pasien(nama_pasien), persediaan(nama_item)');
-        
-        if (error) throw error;
-
-        const tbody = document.getElementById('report-table-body');
-        if (!tbody) return;
-
-        tbody.innerHTML = '';
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data transaksi atau piutang.</td></tr>`;
-            return;
-        }
-
-        data.forEach(trx => {
-            const namaPasien = trx.pasien?.nama_pasien || trx.pasien_id || 'Umum';
-            const totalBiaya = (trx.biaya_dokter || 0); // Bisa ditambahkan harga obat jika ada
-            tbody.innerHTML += `
-                <tr>
-                    <td>${trx.tanggal || '-'}</td>
-                    <td>${namaPasien}</td>
-                    <td>Medis & Resep</td>
-                    <td>Rp ${Number(totalBiaya).toLocaleString('id-ID')}</td>
-                    <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; background: ${trx.status_pembayaran === 'Lunas' ? '#d1fae5; color: #065f46;' : '#fef3c7; color: #92400e;'}">${trx.status_pembayaran || 'Lunas'}</span></td>
-                </tr>
-            `;
-        });
-    } catch (err) {
-        console.error("Gagal memuat laporan:", err.message);
-    }
-}
-
-else if (tabId === 'laporan') {
-        loadPatientDropdown();
-        loadInventoryDropdown();
-        loadReportData();
-    }
