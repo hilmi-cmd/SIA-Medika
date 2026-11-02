@@ -1,34 +1,28 @@
 // Jalankan saat halaman selesai dimuat
 document.addEventListener("DOMContentLoaded", () => {
-    // Muat data awal berdasarkan tab default (Beranda atau Persediaan)
     loadInventoryData();
 });
 
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 function switchTab(tabId) {
-    // Sembunyikan semua section konten tab
     document.querySelectorAll('.tab-content').forEach(el => {
         el.style.display = 'none';
     });
     
-    // Hapus kelas 'active' dari semua menu sidebar
     document.querySelectorAll('.sidebar .menu-list a').forEach(el => {
         el.classList.remove('active');
     });
     
-    // Tampilkan tab yang dituju
     const target = document.getElementById(tabId);
     if (target) {
         target.style.display = 'block';
     }
 
-    // Berikan kelas 'active' pada menu sidebar yang sedang diklik
     const activeLink = document.getElementById(`link-${tabId}`);
     if (activeLink) {
         activeLink.classList.add('active');
     }
 
-    // Panggil fungsi data otomatis berdasarkan tab yang dibuka
     if (tabId === 'persediaan') {
         loadInventoryData();
     } else if (tabId === 'transaksi' || tabId === 'laporan') {
@@ -46,15 +40,20 @@ function switchTab(tabId) {
 // 2. Fungsi Mengambil Data Stok Persediaan dari Supabase
 async function loadInventoryData() {
     try {
+        console.log("Mencoba mengambil data dari tabel 'persediaan'...");
         const { data, error } = await supabaseClient.from('persediaan').select('*');
-        if (error) throw error;
+        
+        if (error) {
+            console.error("Detail Error Supabase:", error);
+            throw error;
+        }
 
         const tbody = document.getElementById('inventory-table-body');
         if (!tbody) return;
         
         tbody.innerHTML = '';
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data persediaan.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data persediaan di database.</td></tr>`;
             return;
         }
 
@@ -70,10 +69,10 @@ async function loadInventoryData() {
             `;
         });
     } catch (err) {
-        console.error("Gagal memuat persediaan:", err);
+        console.error("Gagal memuat persediaan:", err.message);
         const tbody = document.getElementById('inventory-table-body');
         if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Gagal memuat data dari database.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error: ${err.message}</td></tr>`;
         }
     }
 }
