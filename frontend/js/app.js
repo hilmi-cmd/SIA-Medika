@@ -478,3 +478,106 @@ function switchTab(tabId) {
         loadAccountDropdownForJournal();
     }
 }
+    // Fungsi Utama Pengganti Tab (Menghubungkan Sidebar & Tab Atas)
+function switchTab(tabId) {
+    // Sembunyikan semua section konten
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Hapus kelas aktif dari menu sidebar/tab
+    document.querySelectorAll('.menu-link, .tab-btn').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // Tampilkan section yang dituju
+    const target = document.getElementById(tabId);
+    if (target) {
+        target.style.display = 'block';
+    }
+
+    // Tandai menu/tombol yang aktif
+    const activeLink = document.getElementById(`link-${tabId}`);
+    if (activeLink) activeLink.classList.add('active');
+
+    // Panggil fungsi data yang sesuai
+    if (tabId === 'persediaan') {
+        loadInventoryData();
+    } else if (tabId === 'transaksi' || tabId === 'laporan') {
+        loadPatientDropdown();
+        loadInventoryDropdown();
+    } else if (tabId === 'statistik') {
+        loadStatistics();
+    } else if (tabId === 'buku-besar') {
+        loadAccountDropdown();
+    } else if (tabId === 'jurnal') {
+        loadAccountDropdownForJournal();
+    }
+}
+
+// Fungsi Mengambil Data Stok Persediaan dari Supabase
+async function loadInventoryData() {
+    try {
+        const { data, error } = await supabaseClient.from('persediaan').select('*');
+        if (error) throw error;
+
+        const tbody = document.getElementById('inventory-table-body');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data persediaan.</td></tr>`;
+            return;
+        }
+
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.id || item.item_code || '-'}</td>
+                    <td>${item.nama_item || item.name || '-'}</td>
+                    <td>${item.kategori || '-'}</td>
+                    <td>${item.stok || 0}</td>
+                    <td>Rp ${Number(item.harga_satuan || item.price || 0).toLocaleString('id-ID')}</td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Gagal memuat persediaan:", err);
+    }
+}
+
+// Fungsi Mengambil Data Pasien untuk Dropdown Transaksi
+async function loadPatientDropdown() {
+    try {
+        const { data, error } = await supabaseClient.from('pasien').select('*');
+        if (error) throw error;
+
+        const select = document.getElementById('pasien'); // Sesuaikan dengan id dropdown pasien di HTML Anda
+        if (!select) return;
+
+        select.innerHTML = `<option value="">-- Pilih Pasien --</option>`;
+        data.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.nama_pasien || p.name}</option>`;
+        });
+    } catch (err) {
+        console.error("Gagal memuat pasien:", err);
+    }
+}
+
+// Fungsi Mengambil Data Item Obat untuk Dropdown Transaksi
+async function loadInventoryDropdown() {
+    try {
+        const { data, error } = await supabaseClient.from('persediaan').select('*');
+        if (error) throw error;
+
+        const select = document.getElementById('item-obat'); // Sesuaikan dengan id dropdown obat Anda
+        if (!select) return;
+
+        select.innerHTML = `<option value="">-- Pilih Obat/Alkes --</option>`;
+        data.forEach(item => {
+            select.innerHTML += `<option value="${item.id}">${item.nama_item} (Stok: ${item.stok})</option>`;
+        });
+    } catch (err) {
+        console.error("Gagal memuat dropdown obat:", err);
+    }
+}
