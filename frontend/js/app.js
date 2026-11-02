@@ -56,13 +56,16 @@ async function loadInventoryData() {
         }
 
         data.forEach(item => {
+    // Menangkap berbagai kemungkinan nama kolom harga di database Anda
+    const hargaItem = item.harga || item.harga_satuan || item.price || item.harga_jual || 0;
+    
     tbody.innerHTML += `
         <tr>
-            <td>${item.id || item.item_code || '-'}</td>
+            <td>${item.id || '-'}</td>
             <td>${item.nama_item || item.name || '-'}</td>
             <td>${item.kategori || '-'}</td>
             <td>${item.stok || 0}</td>
-            <td>Rp ${Number(item.harga_satuan || item.price || item.harga || 0).toLocaleString('id-ID')}</td>
+            <td>Rp ${Number(hargaItem).toLocaleString('id-ID')}</td>
         </tr>
     `;
 });
