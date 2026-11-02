@@ -314,3 +314,134 @@ if (btnResetLaporan) {
 loadPersediaan();
 loadPasien();
 loadTransaksi();
+
+// Fungsi Navigasi Tab
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById(tabId).style.display = 'block';
+    event.currentTarget.classList.add('active');
+
+    if (tabId === 'statistik') loadStatistics();
+    if (tabId === 'buku-besar') loadAccountDropdown();
+    if (tabId === 'jurnal') loadAccountDropdownForJournal();
+}
+
+// 1. Logika Statistik
+async function loadStatistics() {
+    try {
+        // Ambil total pendapatan dari tabel jurnal/transaksi
+        const { data: journalData, error } = await supabaseClient
+            .from('journal_entries')
+            .select('debit, credit, account_code');
+
+        if (error) throw error;
+
+        let totalRevenue = 0;
+        journalData.forEach(row => {
+            if (row.account_code === '4101') {
+                totalRevenue += (row.credit - row.debit);
+            }
+        });
+
+        document.getElementById('stat-total-revenue').innerText = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
+        
+        // Contoh data pasien (hubungkan dengan tabel pasien Anda jika ada)
+        document.getElementById('stat-total-patients').innerText = "24 Pasien"; 
+        document.getElementById('stat-total-receivable').innerText = "Rp 1.500.000";
+    } catch (err) {
+        console.h("Gagal memuat statistik:", err);
+    }
+}
+
+// 2. Load Dropdown Akun
+async function loadAccountDropdown() {
+    const { data: accounts, error } = await supabaseClient.from('accounts').select('*');
+    if (error) return;
+
+    const selectEl = document.getElementById('filter-account');
+    selectEl.innerHTML = accounts.map(acc => `<option value="${acc.account_code}">${acc.account_code} - ${acc.account_name}</option>`).join('');
+    loadGeneralLedger();
+}
+
+async function loadAccountDropdownForJournal() {
+    const { data: accounts, error } = await supabaseClient.from('accounts').select('*');
+    if (error) return;
+
+    const selectEl = document.getElementById('jurnal-account');
+    selectEl.innerHTML = accounts.map(acc => `<option value="${acc.account_code}">${acc.account_code} - ${acc.account_name}</option>`).join('');
+}
+
+// 3. Logika Buku Besar (General Ledger)
+async function loadGeneralLedger() {
+    const accountCode = document.getElementById('filter-account').value;
+    if (!accountCode) return;
+
+    const { data: entries, error } = await supabaseClient
+        .from('journal_entries')
+        .select('*')
+        .eq('account_code', accountCode)
+        .order('transaction_date', { ascending: true });
+
+    if (error) {
+        console.error("Gagal memuat buku besar:", error);
+        return;
+    }
+
+    let runningBalance = 0;
+    const tbody = document.getElementById('ledger-table-body');
+    tbody.innerHTML = '';
+
+    entries.forEach(entry => {
+        // Asumsi normal balance sederhana (bisa disesuaikan dengan jenis akun)
+        runningBalance += (Number(entry.debit) - Number(entry.credit));
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${entry.transaction_date}</td>
+                <td>${entry.reference_number || '-'}</td>
+                <td>${entry.description}</td>
+                <td>Rp ${Number(entry.debit).toLocaleString('id-ID')}</td>
+                <td>Rp ${Number(entry.credit).toLocaleString('id-ID')}</td>
+                <td>Rp ${runningBalance.toLocaleString('id-ID')}</td>
+            </tr>
+        `;
+    });
+}
+
+// 4. Validasi & Submit Jurnal Debit/Kredit
+function validateBalance() {
+    const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
+    const credit = parseFloat(document.getElementById('jurnal-credit').value) || 0;
+    const warning = document.getElementById('balance-warning');
+
+    if (debit > 0 && credit > 0) {
+        warning.innerText = "Peringatan: Biasanya transaksi diisi salah satu (Debit atau Kredit) per baris akun.";
+    } else {
+        warning.innerText = "";
+    }
+}
+
+async function submitJournal(event) {
+    event.preventDefault();
+    
+    const newEntry = {
+        transaction_date: document.getElementById('jurnal-date').value,
+        reference_number: document.getElementById('jurnal-ref').value,
+        description: document.getElementById('jurnal-desc').value,
+        account_code: document.getElementById('jurnal-account').value,
+        debit: parseFloat(document.getElementById('jurnal-debit').value) || 0,
+        credit: parseFloat(document.getElementById('jurnal-credit').value) || 0,
+    };
+
+    const { error } = await supabaseClient.from('journal_entries').insert([newEntry]);
+
+    if (error) {
+        alert("Gagal menyimpan transaksi: " + error.message);
+    } else {
+        alert("Transaksi berhasil disimpan!");
+        document.getElementById('journal-form').reset();
+        loadStatistics();
+    }
+}
