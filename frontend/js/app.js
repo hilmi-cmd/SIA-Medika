@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadInventoryData();
 });
 
-// 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => {
         el.style.display = 'none';
@@ -37,16 +36,13 @@ function switchTab(tabId) {
     }
 }
 
-// 2. Fungsi Mengambil Data Stok Persediaan dari Supabase
 async function loadInventoryData() {
     try {
-        console.log("Mencoba mengambil data dari tabel 'persediaan'...");
-        const { data, error } = await supabaseClient.from('persediaan').select('*');
+        // Menggunakan window.supabaseClient agar aman dari error 'not defined'
+        const client = window.supabaseClient || supabaseClient;
+        const { data, error } = await client.from('persediaan').select('*');
         
-        if (error) {
-            console.error("Detail Error Supabase:", error);
-            throw error;
-        }
+        if (error) throw error;
 
         const tbody = document.getElementById('inventory-table-body');
         if (!tbody) return;
@@ -77,10 +73,10 @@ async function loadInventoryData() {
     }
 }
 
-// 3. Fungsi Dropdown Pasien
 async function loadPatientDropdown() {
     try {
-        const { data, error } = await supabaseClient.from('pasien').select('*');
+        const client = window.supabaseClient || supabaseClient;
+        const { data, error } = await client.from('pasien').select('*');
         if (error) throw error;
         const select = document.getElementById('pasien');
         if (!select) return;
@@ -95,10 +91,10 @@ async function loadPatientDropdown() {
     }
 }
 
-// 4. Fungsi Dropdown Obat
 async function loadInventoryDropdown() {
     try {
-        const { data, error } = await supabaseClient.from('persediaan').select('*');
+        const client = window.supabaseClient || supabaseClient;
+        const { data, error } = await client.from('persediaan').select('*');
         if (error) throw error;
         const select = document.getElementById('item-obat');
         if (!select) return;
@@ -113,10 +109,10 @@ async function loadInventoryDropdown() {
     }
 }
 
-// 5. Fungsi Statistik Keuangan
 async function loadStatistics() {
     try {
-        const { data: journalData, error } = await supabaseClient.from('journal_entries').select('debit, credit, account_code');
+        const client = window.supabaseClient || supabaseClient;
+        const { data: journalData, error } = await client.from('journal_entries').select('debit, credit, account_code');
         if (error) throw error;
 
         let totalRevenue = 0;
@@ -140,9 +136,9 @@ async function loadStatistics() {
     }
 }
 
-// 6. Fungsi Buku Besar & Akun
 async function loadAccountDropdown() {
-    const { data: accounts, error } = await supabaseClient.from('accounts').select('*');
+    const client = window.supabaseClient || supabaseClient;
+    const { data: accounts, error } = await client.from('accounts').select('*');
     if (error) return;
     const selectEl = document.getElementById('filter-account');
     if (!selectEl) return;
@@ -151,7 +147,8 @@ async function loadAccountDropdown() {
 }
 
 async function loadAccountDropdownForJournal() {
-    const { data: accounts, error } = await supabaseClient.from('accounts').select('*');
+    const client = window.supabaseClient || supabaseClient;
+    const { data: accounts, error } = await client.from('accounts').select('*');
     if (error) return;
     const selectEl = document.getElementById('jurnal-account');
     if (!selectEl) return;
@@ -159,10 +156,11 @@ async function loadAccountDropdownForJournal() {
 }
 
 async function loadGeneralLedger() {
+    const client = window.supabaseClient || supabaseClient;
     const accountCode = document.getElementById('filter-account')?.value;
     if (!accountCode) return;
 
-    const { data: entries, error } = await supabaseClient
+    const { data: entries, error } = await client
         .from('journal_entries')
         .select('*')
         .eq('account_code', accountCode)
@@ -195,7 +193,6 @@ async function loadGeneralLedger() {
     });
 }
 
-// 7. Validasi & Submit Jurnal
 function validateBalance() {
     const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
     const credit = parseFloat(document.getElementById('jurnal-credit').value) || 0;
@@ -207,6 +204,7 @@ function validateBalance() {
 
 async function submitJournal(event) {
     event.preventDefault();
+    const client = window.supabaseClient || supabaseClient;
     const newEntry = {
         transaction_date: document.getElementById('jurnal-date').value,
         reference_number: document.getElementById('jurnal-ref').value,
@@ -216,7 +214,7 @@ async function submitJournal(event) {
         credit: parseFloat(document.getElementById('jurnal-credit').value) || 0,
     };
 
-    const { error } = await supabaseClient.from('journal_entries').insert([newEntry]);
+    const { error } = await client.from('journal_entries').insert([newEntry]);
     if (error) {
         alert("Gagal menyimpan transaksi: " + error.message);
     } else {
