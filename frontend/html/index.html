@@ -230,16 +230,19 @@
         <p>Manajemen Persediaan, Jasa Medis, dan Piutang Asuransi</p>
     </header>
 
-    <!-- NAVIGASI TAB LENGKAP -->
-    <nav class="nav-tabs" style="margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-        <button onclick="switchTab('beranda')" class="tab-btn active">Beranda</button>
-        <button onclick="switchTab('persediaan')" class="tab-btn">Stok Persediaan</button>
-        <button onclick="switchTab('transaksi')" class="tab-btn">Input Transaksi</button>
-        <button onclick="switchTab('laporan')" class="tab-btn">Laporan & Piutang</button>
-        <button onclick="switchTab('statistik')" class="tab-btn">Statistik</button>
-        <button onclick="switchTab('buku-besar')" class="tab-btn">Buku Besar</button>
-        <button onclick="switchTab('jurnal')" class="tab-btn">Debit / Kredit (Jurnal)</button>
-    </nav>
+    <!-- Bagian Sidebar Kiri -->
+<aside class="sidebar">
+    <div class="logo">SIA Medika</div>
+    <ul class="menu-list">
+        <li><a href="#" onclick="switchTab('beranda')" class="menu-link active" id="link-beranda">Beranda</a></li>
+        <li><a href="#" onclick="switchTab('persediaan')" class="menu-link" id="link-persediaan">Stok Persediaan</a></li>
+        <li><a href="#" onclick="switchTab('transaksi')" class="menu-link" id="link-transaksi">Input Transaksi</a></li>
+        <li><a href="#" onclick="switchTab('laporan')" class="menu-link" id="link-laporan">Laporan & Piutang</a></li>
+        <li><a href="#" onclick="switchTab('statistik')" class="menu-link" id="link-statistik">Statistik</a></li>
+        <li><a href="#" onclick="switchTab('buku-besar')" class="menu-link" id="link-buku-besar">Buku Besar</a></li>
+        <li><a href="#" onclick="switchTab('jurnal')" class="menu-link" id="link-jurnal">Debit / Kredit (Jurnal)</a></li>
+    </ul>
+</aside>
 
     <!-- KONTEN TAB 1: Beranda -->
     <section id="beranda" class="tab-content">
