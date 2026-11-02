@@ -245,8 +245,6 @@ async function submitTransaction(event) {
 async function loadReportData() {
     try {
         const client = window.supabaseClient || supabaseClient;
-        
-        // Ambil data transaksi beserta data pasien jika tabelnya terhubung
         const { data, error } = await client.from('transaksi').select('*').order('id', { ascending: false });
         
         if (error) throw error;
@@ -262,14 +260,16 @@ async function loadReportData() {
 
         data.forEach(trx => {
             const totalBiaya = (trx.biaya_dokter || 0);
-            // Tampilkan ID pasien atau teks umum jika kosong
-            const pasienLabel = trx.pasien_id ? `Pasien (ID: ${trx.pasien_id})` : 'Pasien Umum';
             
+            // Pencegahan agar tidak memunculkan undefined
+            const idPasienText = (trx.pasien_id && trx.pasien_id !== 'undefined') ? `ID: ${trx.pasien_id}` : 'Umum';
+            const idObatText = (trx.item_id && trx.item_id !== 'undefined') ? `Obat ID: ${trx.item_id}` : 'Resep Standar';
+
             tbody.innerHTML += `
                 <tr>
                     <td>${trx.tanggal || '-'}</td>
-                    <td>${pasienLabel}</td>
-                    <td>Pemeriksaan & Resep</td>
+                    <td>Pasien (${idPasienText})</td>
+                    <td>Pemeriksaan Medis & ${idObatText}</td>
                     <td>Rp ${Number(totalBiaya).toLocaleString('id-ID')}</td>
                     <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; background: ${trx.status_pembayaran === 'Lunas' ? '#d1fae5; color: #065f46;' : '#fef3c7; color: #92400e;'}">${trx.status_pembayaran || 'Lunas'}</span></td>
                 </tr>
