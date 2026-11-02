@@ -221,7 +221,7 @@
     }
   </script>
 
-  <!-- Bagian dalam kontainer utama index.html (sesuaikan dengan struktur wrapper Anda) -->
+  <!-- Kontainer Utama / Main Content -->
 <div class="main-content">
     
     <!-- Header Halaman -->
@@ -230,19 +230,57 @@
         <p>Manajemen Persediaan, Jasa Medis, dan Piutang Asuransi</p>
     </header>
 
-    <!-- TAB NAVIGASI UTAMA (Gabungkan tab lama dan tab baru di sini agar sejajar) -->
-    <nav class="nav-tabs" style="margin: 20px 0; display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+    <!-- NAVIGASI TAB LENGKAP -->
+    <nav class="nav-tabs" style="margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
         <button onclick="switchTab('beranda')" class="tab-btn active">Beranda</button>
         <button onclick="switchTab('persediaan')" class="tab-btn">Stok Persediaan</button>
         <button onclick="switchTab('transaksi')" class="tab-btn">Input Transaksi</button>
         <button onclick="switchTab('laporan')" class="tab-btn">Laporan & Piutang</button>
-        <!-- Tab Baru yang Terintegrasi -->
         <button onclick="switchTab('statistik')" class="tab-btn">Statistik</button>
         <button onclick="switchTab('buku-besar')" class="tab-btn">Buku Besar</button>
         <button onclick="switchTab('jurnal')" class="tab-btn">Debit / Kredit (Jurnal)</button>
     </nav>
 
-    <!-- KONTEN TAB: 1. Statistik -->
+    <!-- KONTEN TAB 1: Beranda -->
+    <section id="beranda" class="tab-content">
+        <h2>Beranda</h2>
+        <p>Selamat datang di Sistem Informasi Akuntansi Praktik Dokter Umum.</p>
+    </section>
+
+    <!-- KONTEN TAB 2: Stok Persediaan -->
+    <section id="persediaan" class="tab-content" style="display: none;">
+        <h2>Stok Persediaan Obat & Alkes</h2>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Item</th>
+                        <th>Kategori</th>
+                        <th>Stok</th>
+                        <th>Harga Satuan</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-table-body">
+                    <!-- Data Persediaan dimuat via app.js -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- KONTEN TAB 3: Input Transaksi -->
+    <section id="transaksi" class="tab-content" style="display: none;">
+        <h2>Input Transaksi Medis</h2>
+        <!-- Form Transaksi Anda -->
+    </section>
+
+    <!-- KONTEN TAB 4: Laporan & Piutang -->
+    <section id="laporan" class="tab-content" style="display: none;">
+        <h2>Laporan & Piutang Asuransi</h2>
+        <!-- Konten Laporan -->
+    </section>
+
+    <!-- KONTEN TAB 5: Statistik -->
     <section id="statistik" class="tab-content" style="display: none;">
         <h2>Statistik & Ringkasan Keuangan</h2>
         <div class="stats-grid">
@@ -261,14 +299,12 @@
         </div>
     </section>
 
-    <!-- KONTEN TAB: 2. Buku Besar -->
+    <!-- KONTEN TAB 6: Buku Besar -->
     <section id="buku-besar" class="tab-content" style="display: none;">
         <h2>Buku Besar (General Ledger)</h2>
         <div class="form-group" style="margin-bottom: 15px;">
             <label for="filter-account">Pilih Akun:</label>
-            <select id="filter-account" onchange="loadGeneralLedger()" class="form-control">
-                <!-- Dinamis via JS -->
-            </select>
+            <select id="filter-account" onchange="loadGeneralLedger()" class="form-control"></select>
         </div>
         <div class="table-responsive">
             <table class="data-table">
@@ -282,14 +318,12 @@
                         <th>Saldo (Rp)</th>
                     </tr>
                 </thead>
-                <tbody id="ledger-table-body">
-                    <tr><td colspan="6" style="text-align: center;">Memuat data...</td></tr>
-                </tbody>
+                <tbody id="ledger-table-body"></tbody>
             </table>
         </div>
     </section>
 
-    <!-- KONTEN TAB: 3. Debit / Kredit (Jurnal) -->
+    <!-- KONTEN TAB 7: Debit / Kredit (Jurnal) -->
     <section id="jurnal" class="tab-content" style="display: none;">
         <h2>Entri Jurnal Transaksi (Debit & Kredit)</h2>
         <form id="journal-form" onsubmit="submitJournal(event)" class="card-form">
