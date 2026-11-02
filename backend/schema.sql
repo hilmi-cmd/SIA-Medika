@@ -54,3 +54,31 @@ INSERT INTO pasien (nama_pasien, penjamin, no_polis) VALUES
 ('Rian Hidayat', 'Asuransi Manulife', 'MNL-441290'),
 ('Eka Putri', 'Umum/Tunai', '-'),
 ('Hendra Wijaya', 'BPJS Kesehatan', '00098765432');
+
+-- Tabel Akun / Chart of Accounts (CoA) untuk Buku Besar
+CREATE TABLE IF NOT EXISTS accounts (
+    account_code VARCHAR(20) PRIMARY KEY,
+    account_name VARCHAR(100) NOT NULL,
+    account_type VARCHAR(50) NOT NULL -- 'Asset', 'Liability', 'Equity', 'Revenue', 'Expense'
+);
+
+-- Contoh Seeder Akun Dasar
+INSERT INTO accounts (account_code, account_name, account_type) VALUES
+('1101', 'Kas / Bank', 'Asset'),
+('1102', 'Piutang Asuransi', 'Asset'),
+('1201', 'Persediaan Obat & Medis', 'Asset'),
+('4101', 'Pendapatan Jasa Medis', 'Revenue'),
+('5101', 'Beban Persediaan / Operasional', 'Expense')
+ON CONFLICT (account_code) DO NOTHING;
+
+-- Tabel Jurnal Umum (Debit & Kredit)
+CREATE TABLE IF NOT EXISTS journal_entries (
+    id SERIAL PRIMARY KEY,
+    transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    reference_number VARCHAR(50),
+    description TEXT NOT NULL,
+    account_code VARCHAR(20) REFERENCES accounts(account_code),
+    debit NUMERIC(15,2) DEFAULT 0.00,
+    credit NUMERIC(15,2) DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
