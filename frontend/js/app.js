@@ -230,10 +230,13 @@ async function submitTransaction(event) {
     }
 }
 
+// Perbaikan Fungsi Memuat Laporan & Piutang yang Lebih Aman
 async function loadReportData() {
     try {
         const client = window.supabaseClient || supabaseClient;
-        const { data, error } = await client.from('transaksi').select('*, pasien(nama_pasien)');
+        
+        // Ambil data dari tabel transaksi saja secara langsung
+        const { data, error } = await client.from('transaksi').select('*').order('id', { ascending: false });
         
         if (error) throw error;
 
@@ -242,18 +245,17 @@ async function loadReportData() {
 
         tbody.innerHTML = '';
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data transaksi atau piutang.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data transaksi atau piutang. Silakan input transaksi terlebih dahulu.</td></tr>`;
             return;
         }
 
         data.forEach(trx => {
-            const namaPasien = trx.pasien?.nama_pasien || trx.pasien_id || 'Umum';
             const totalBiaya = (trx.biaya_dokter || 0);
             tbody.innerHTML += `
                 <tr>
                     <td>${trx.tanggal || '-'}</td>
-                    <td>${namaPasien}</td>
-                    <td>Medis & Resep</td>
+                    <td>Pasien ID: ${trx.pasien_id || 'Umum'}</td>
+                    <td>Medis & Resep (Obat ID: ${trx.item_id || '-'})</td>
                     <td>Rp ${Number(totalBiaya).toLocaleString('id-ID')}</td>
                     <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; background: ${trx.status_pembayaran === 'Lunas' ? '#d1fae5; color: #065f46;' : '#fef3c7; color: #92400e;'}">${trx.status_pembayaran || 'Lunas'}</span></td>
                 </tr>
@@ -261,9 +263,12 @@ async function loadReportData() {
         });
     } catch (err) {
         console.error("Gagal memuat laporan:", err.message);
+        const tbody = document.getElementById('report-table-body');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Gagal memuat data: ${err.message}</td></tr>`;
+        }
     }
 }
-
 // 8. Validasi & Submit Jurnal
 function validateBalance() {
     const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
