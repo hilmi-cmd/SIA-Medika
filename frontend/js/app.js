@@ -446,24 +446,35 @@ async function submitJournal(event) {
     }
 }
 function switchTab(tabId) {
-    // Sembunyikan semua konten tab
-    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-    // Hapus kelas aktif dari semua tombol tab
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    // Sembunyikan seluruh section tab
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.style.display = 'none';
+    });
     
-    // Tampilkan tab yang dipilih jika ada elemennya
+    // Hilangkan kelas aktif dari semua tombol navigasi tab
+    document.querySelectorAll('.nav-tabs .tab-btn').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // Tampilkan tab yang dituju
     const targetSection = document.getElementById(tabId);
     if (targetSection) {
         targetSection.style.display = 'block';
     }
     
-    // Tandai tombol yang diklik sebagai aktif
+    // Berikan kelas aktif pada tombol yang diklik
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
 
-    // Panggil fungsi pendukung sesuai tab
-    if (tabId === 'statistik') loadStatistics();
-    if (tabId === 'buku-besar') loadAccountDropdown();
-    if (tabId === 'jurnal') loadAccountDropdownForJournal();
+    // Panggil fungsi data yang bersesuaian dengan tab yang dibuka
+    if (tabId === 'persediaan') {
+        if (typeof loadInventory === 'function') loadInventory();
+    } else if (tabId === 'statistik') {
+        loadStatistics();
+    } else if (tabId === 'buku-besar') {
+        loadAccountDropdown();
+    } else if (tabId === 'jurnal') {
+        loadAccountDropdownForJournal();
+    }
 }
