@@ -222,3 +222,75 @@ async function submitJournal(event) {
         document.getElementById('journal-form').reset();
     }
 }
+// Fungsi Menyimpan Transaksi Medis Baru
+async function submitTransaction(event) {
+    event.preventDefault();
+    const client = window.supabaseClient || supabaseClient;
+
+    const pasienId = document.getElementById('pasien').value;
+    const obatId = document.getElementById('item-obat').value;
+    const jumlah = parseInt(document.getElementById('jumlah-obat').value) || 1;
+    const biayaDokter = parseFloat(document.getElementById('biaya-dokter').value) || 0;
+    const status = document.getElementById('status-pembayaran').value;
+
+    try {
+        // Simpan ke tabel transaksi (sesuaikan nama kolom dengan database Anda)
+        const { error } = await client.from('transaksi').insert([{
+            pasien_id: pasienId,
+            item_id: obatId,
+            jumlah_obat: jumlah,
+            biaya_dokter: biayaDokter,
+            status_pembayaran: status,
+            tanggal: new Date().toISOString().split('T')[0]
+        }]);
+
+        if (error) throw error;
+
+        alert("Transaksi berhasil diproses!");
+        document.getElementById('transaction-form').reset();
+    } catch (err) {
+        console.error("Gagal menyimpan transaksi:", err.message);
+        alert("Gagal memproses transaksi: " + err.message);
+    }
+}
+
+// Fungsi Memuat Data Laporan & Piutang
+async function loadReportData() {
+    try {
+        const client = window.supabaseClient || supabaseClient;
+        const { data, error } = await client.from('transaksi').select('*, pasien(nama_pasien), persediaan(nama_item)');
+        
+        if (error) throw error;
+
+        const tbody = document.getElementById('report-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data transaksi atau piutang.</td></tr>`;
+            return;
+        }
+
+        data.forEach(trx => {
+            const namaPasien = trx.pasien?.nama_pasien || trx.pasien_id || 'Umum';
+            const totalBiaya = (trx.biaya_dokter || 0); // Bisa ditambahkan harga obat jika ada
+            tbody.innerHTML += `
+                <tr>
+                    <td>${trx.tanggal || '-'}</td>
+                    <td>${namaPasien}</td>
+                    <td>Medis & Resep</td>
+                    <td>Rp ${Number(totalBiaya).toLocaleString('id-ID')}</td>
+                    <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; background: ${trx.status_pembayaran === 'Lunas' ? '#d1fae5; color: #065f46;' : '#fef3c7; color: #92400e;'}">${trx.status_pembayaran || 'Lunas'}</span></td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Gagal memuat laporan:", err.message);
+    }
+}
+
+else if (tabId === 'laporan') {
+        loadPatientDropdown();
+        loadInventoryDropdown();
+        loadReportData();
+    }
