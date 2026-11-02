@@ -1,3 +1,9 @@
+// Jalankan saat halaman selesai dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    // Muat data awal berdasarkan tab default (Beranda atau Persediaan)
+    loadInventoryData();
+});
+
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 function switchTab(tabId) {
     // Sembunyikan semua section konten tab
@@ -37,7 +43,7 @@ function switchTab(tabId) {
     }
 }
 
-// 2. Fungsi Mengambil Data Stok Persediaan
+// 2. Fungsi Mengambil Data Stok Persediaan dari Supabase
 async function loadInventoryData() {
     try {
         const { data, error } = await supabaseClient.from('persediaan').select('*');
@@ -65,6 +71,10 @@ async function loadInventoryData() {
         });
     } catch (err) {
         console.error("Gagal memuat persediaan:", err);
+        const tbody = document.getElementById('inventory-table-body');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Gagal memuat data dari database.</td></tr>`;
+        }
     }
 }
 
@@ -76,9 +86,11 @@ async function loadPatientDropdown() {
         const select = document.getElementById('pasien');
         if (!select) return;
         select.innerHTML = `<option value="">-- Pilih Pasien --</option>`;
-        data.forEach(p => {
-            select.innerHTML += `<option value="${p.id}">${p.nama_pasien || p.name}</option>`;
-        });
+        if (data) {
+            data.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.nama_pasien || p.name}</option>`;
+            });
+        }
     } catch (err) {
         console.error("Gagal memuat pasien:", err);
     }
@@ -92,9 +104,11 @@ async function loadInventoryDropdown() {
         const select = document.getElementById('item-obat');
         if (!select) return;
         select.innerHTML = `<option value="">-- Pilih Obat/Alkes --</option>`;
-        data.forEach(item => {
-            select.innerHTML += `<option value="${item.id}">${item.nama_item} (Stok: ${item.stok})</option>`;
-        });
+        if (data) {
+            data.forEach(item => {
+                select.innerHTML += `<option value="${item.id}">${item.nama_item} (Stok: ${item.stok})</option>`;
+            });
+        }
     } catch (err) {
         console.error("Gagal memuat dropdown obat:", err);
     }
@@ -115,9 +129,13 @@ async function loadStatistics() {
             });
         }
 
-        document.getElementById('stat-total-revenue').innerText = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
-        document.getElementById('stat-total-patients').innerText = "24 Pasien"; 
-        document.getElementById('stat-total-receivable').innerText = "Rp 1.500.000";
+        const revEl = document.getElementById('stat-total-revenue');
+        const patEl = document.getElementById('stat-total-patients');
+        const recEl = document.getElementById('stat-total-receivable');
+
+        if (revEl) revEl.innerText = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
+        if (patEl) patEl.innerText = "24 Pasien"; 
+        if (recEl) recEl.innerText = "Rp 1.500.000";
     } catch (err) {
         console.error("Gagal memuat statistik:", err);
     }
@@ -157,6 +175,11 @@ async function loadGeneralLedger() {
     const tbody = document.getElementById('ledger-table-body');
     if (!tbody) return;
     tbody.innerHTML = '';
+
+    if (!entries || entries.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Belum ada transaksi untuk akun ini.</td></tr>`;
+        return;
+    }
 
     entries.forEach(entry => {
         runningBalance += (Number(entry.debit) - Number(entry.credit));
