@@ -56,16 +56,16 @@ async function loadInventoryData() {
         }
 
         data.forEach(item => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${item.id || item.item_code || '-'}</td>
-                    <td>${item.nama_item || item.name || '-'}</td>
-                    <td>${item.kategori || '-'}</td>
-                    <td>${item.stok || 0}</td>
-                    <td>Rp ${Number(item.harga_satuan || item.price || 0).toLocaleString('id-ID')}</td>
-                </tr>
-            `;
-        });
+    tbody.innerHTML += `
+        <tr>
+            <td>${item.id || item.item_code || '-'}</td>
+            <td>${item.nama_item || item.name || '-'}</td>
+            <td>${item.kategori || '-'}</td>
+            <td>${item.stok || 0}</td>
+            <td>Rp ${Number(item.harga_satuan || item.price || item.harga || 0).toLocaleString('id-ID')}</td>
+        </tr>
+    `;
+});
     } catch (err) {
         console.error("Gagal memuat persediaan:", err.message);
         const tbody = document.getElementById('inventory-table-body');
