@@ -445,3 +445,25 @@ async function submitJournal(event) {
         loadStatistics();
     }
 }
+function switchTab(tabId) {
+    // Sembunyikan semua konten tab
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    // Hapus kelas aktif dari semua tombol tab
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    // Tampilkan tab yang dipilih jika ada elemennya
+    const targetSection = document.getElementById(tabId);
+    if (targetSection) {
+        targetSection.style.display = 'block';
+    }
+    
+    // Tandai tombol yang diklik sebagai aktif
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
+
+    // Panggil fungsi pendukung sesuai tab
+    if (tabId === 'statistik') loadStatistics();
+    if (tabId === 'buku-besar') loadAccountDropdown();
+    if (tabId === 'jurnal') loadAccountDropdownForJournal();
+}
