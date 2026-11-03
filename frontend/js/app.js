@@ -243,17 +243,18 @@ async function loadGeneralLedger() {
         let runningBalance = 0;
 
         data.forEach(entry => {
-            // Pembacaan fleksibel untuk mencegah blank
             const tgl = entry.tanggal || entry.date || entry.tgl || '-';
             const ref = entry.referensi || entry.ref || entry.no_ref || '-';
             const ket = entry.keterangan || entry.deskripsi || entry.description || entry.memo || '-';
-            const akun = entry.account_code || entry.akun || entry.account || '-';
+            
+            // Menangkap berbagai kemungkinan nama kolom akun dari database
+            const akun = entry.account_code || entry.akun || entry.account || entry.kode_akun || '1201';
+            
             const debit = Number(entry.debit || entry.jumlah_debit || 0);
             const kredit = Number(entry.kredit || entry.jumlah_kredit || 0);
 
             runningBalance += (debit - kredit);
 
-            // Kolom Akun dipisahkan dari Keterangan
             tbody.innerHTML += `
                 <tr>
                     <td>${tgl}</td>
