@@ -262,7 +262,7 @@ async function loadGeneralLedger() {
         let runningBalance = 0;
 
         data.forEach(entry => {
-            // Membaca fleksibel berbagai kemungkinan nama kolom di Supabase
+            // Pembacaan fleksibel untuk mencegah blank
             const tgl = entry.tanggal || entry.date || entry.tgl || '-';
             const ref = entry.referensi || entry.ref || entry.no_ref || '-';
             const ket = entry.keterangan || entry.deskripsi || entry.description || entry.memo || '-';
@@ -272,11 +272,12 @@ async function loadGeneralLedger() {
 
             runningBalance += (debit - kredit);
 
+            // Kolom Akun dipisahkan dari Keterangan
             tbody.innerHTML += `
                 <tr>
                     <td>${tgl}</td>
                     <td>${ref}</td>
-                    <td>${akun}</td>
+                    <td><strong>${akun}</strong></td>
                     <td>${ket}</td>
                     <td>Rp ${debit.toLocaleString('id-ID')}</td>
                     <td>Rp ${kredit.toLocaleString('id-ID')}</td>
@@ -328,13 +329,14 @@ async function submitJournal(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // SESUAIKAN NAMA KIRI (key) BERIKUT DENGAN KOLOM ASLI DI TABEL SUPABASE ANDA
+        // CATATAN: Pastikan nama kolom di bawah ini (tanggal, referensi, keterangan, account_code, debit, kredit)
+        // sudah disesuaikan dengan nama kolom yang ada di Table Editor Supabase Anda.
         const { error } = await client.from('journal_entries').insert([
             { 
-                tanggal: tanggal,         // Ganti 'tanggal' jika di Supabase namanya 'date'
-                referensi: referensi,     // Ganti 'referensi' jika di Supabase namanya 'ref'
-                keterangan: keterangan,   // Ganti 'keterangan' jika di Supabase namanya 'deskripsi'
-                account_code: akun,       // Ganti 'account_code' jika di Supabase namanya 'akun'
+                tanggal: tanggal, 
+                referensi: referensi, 
+                keterangan: keterangan, 
+                account_code: akun, // Ubah menjadi 'akun' jika di database Anda kolomnya bernama 'akun'
                 debit: debit, 
                 kredit: kredit 
             }
