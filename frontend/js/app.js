@@ -5,32 +5,40 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
+// Fungsi Navigasi Tab & Otomatis Panggil Data
 function switchTab(tabId) {
-    // Sembunyikan semua elemen tab-content
+    // Sembunyikan semua tab
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
         tab.style.display = 'none';
     });
 
-    // Tampilkan tab yang aktif
+    // Tampilkan tab yang diklik
     const activeTab = document.getElementById(tabId);
     if (activeTab) {
         activeTab.style.display = 'block';
     }
 
-    // Panggil fungsi data otomatis berdasarkan tab yang diklik
-    if (tabId === 'persediaan' && typeof loadInventoryData === 'function') {
-        loadInventoryData();
-    } else if (tabId === 'laporan' && typeof loadReportData === 'function') {
-        loadReportData();
-    } else if (tabId === 'statistik' && typeof loadStatistics === 'function') {
-        loadStatistics();
-    } else if (tabId === 'buku-besar' && typeof loadGeneralLedger === 'function') {
-        loadGeneralLedger();
-    } else if (tabId === 'transaksi' && typeof loadDropdowns === 'function') {
-        loadDropdowns(); // Fungsi untuk mengisi pilihan Pasien & Obat di form transaksi
+    // Eksekusi fungsi data sesuai menu yang dibuka
+    if (tabId === 'persediaan') {
+        if (typeof loadInventoryData === 'function') loadInventoryData();
+    } else if (tabId === 'laporan') {
+        if (typeof loadReportData === 'function') loadReportData();
+    } else if (tabId === 'statistik') {
+        if (typeof loadStatistics === 'function') loadStatistics();
+    } else if (tabId === 'buku-besar') {
+        if (typeof loadGeneralLedger === 'function') loadGeneralLedger();
+    } else if (tabId === 'transaksi') {
+        if (typeof loadDropdowns === 'function') loadDropdowns();
     }
 }
+
+// Jalankan otomatis saat halaman pertama kali dibuka
+document.addEventListener("DOMContentLoaded", () => {
+    // Langsung muat data persediaan & dropdown saat pertama kali load
+    if (typeof loadInventoryData === 'function') loadInventoryData();
+    if (typeof loadDropdowns === 'function') loadDropdowns();
+});
 
 // 2. Fungsi Mengambil Data Stok Persediaan dari Supabase
 async function loadInventoryData() {
