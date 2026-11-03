@@ -342,12 +342,11 @@ async function submitJournal(event) {
         // SESUAIKAN KATA 'keterangan' DI BAWAH INI DENGAN KOLOM ASLI DI SUPABASE
         // (Contoh: jika di Supabase kolomnya bernama 'deskripsi', ganti 'keterangan: keterangan' menjadi 'deskripsi: keterangan')
         const { error } = await client.from('journal_entries').insert([{
-        tanggal: tanggal,
-        referensi: referensi,
-        deskripsi: keterangan, // <-- Disesuaikan dengan nama kolom asli di Supabase
-        account_code: akun,
-        debit: debit,
-        kredit: kredit
+    tanggal: tanggal,
+    referensi: referensi,
+    account_code: akun,
+    debit: debit,
+    kredit: kredit
     }]);
         if (error) throw error;
 
