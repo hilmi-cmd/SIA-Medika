@@ -7,18 +7,23 @@ document.addEventListener("DOMContentLoaded", () => {
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 // Fungsi Navigasi Tab & Otomatis Panggil Data
 function switchTab(tabId) {
-    // Sembunyikan semua tab
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
         tab.style.display = 'none';
     });
 
-    // Tampilkan tab yang diklik
     const activeTab = document.getElementById(tabId);
     if (activeTab) {
         activeTab.style.display = 'block';
     }
 
+    // Panggil data otomatis sesuai menu
+    if (tabId === 'persediaan') loadInventoryData();
+    else if (tabId === 'laporan') loadReportData();
+    else if (tabId === 'statistik') loadStatistics();
+    else if (tabId === 'buku-besar') loadGeneralLedger();
+    else if (tabId === 'transaksi') loadDropdowns();
+}
     // Eksekusi fungsi data sesuai menu yang dibuka
     if (tabId === 'persediaan') {
         if (typeof loadInventoryData === 'function') loadInventoryData();
@@ -163,41 +168,35 @@ async function loadAccountDropdownForJournal() {
 }
 
 async function loadGeneralLedger() {
-    const client = window.supabaseClient || supabaseClient;
-    const accountCode = document.getElementById('filter-account')?.value;
-    if (!accountCode) return;
-
-    const { data: entries, error } = await client
-        .from('journal_entries')
-        .select('*')
-        .eq('account_code', accountCode)
-        .order('transaction_date', { ascending: true });
-
-    if (error) return;
-
-    let runningBalance = 0;
-    const tbody = document.getElementById('ledger-table-body');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-
-    if (!entries || entries.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Belum ada transaksi untuk akun ini.</td></tr>`;
-        return;
+    try {
+        const client = window.supabaseClient || supabaseClient;
+        const { data, error } = await client.from('journal_entries').select('*');
+        if (error) throw error;
+        
+        const tbody = document.getElementById('ledger-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Belum ada data jurnal.</td></tr>`;
+            return;
+        }
+        
+        data.forEach(entry => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${entry.tanggal || '-'}</td>
+                    <td>${entry.referensi || '-'}</td>
+                    <td>${entry.keterangan || '-'}</td>
+                    <td>Rp ${Number(entry.debit || 0).toLocaleString('id-ID')}</td>
+                    <td>Rp ${Number(entry.kredit || 0).toLocaleString('id-ID')}</td>
+                    <td>-</td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Gagal memuat buku besar:", err.message);
     }
-
-    entries.forEach(entry => {
-        runningBalance += (Number(entry.debit) - Number(entry.credit));
-        tbody.innerHTML += `
-            <tr>
-                <td>${entry.transaction_date}</td>
-                <td>${entry.reference_number || '-'}</td>
-                <td>${entry.description}</td>
-                <td>Rp ${Number(entry.debit).toLocaleString('id-ID')}</td>
-                <td>Rp ${Number(entry.credit).toLocaleString('id-ID')}</td>
-                <td>Rp ${runningBalance.toLocaleString('id-ID')}</td>
-            </tr>
-        `;
-    });
 }
 
 // 7. Transaksi & Laporan
@@ -310,5 +309,33 @@ async function submitJournal(event) {
     } else {
         alert("Transaksi berhasil disimpan!");
         document.getElementById('journal-form').reset();
+    }
+}
+
+async function loadDropdowns() {
+    try {
+        const client = window.supabaseClient || supabaseClient;
+        
+        // Ambil data pasien
+        const { data: pasienData } = await client.from('pasien').select('*');
+        const selectPasien = document.getElementById('pasien');
+        if (selectPasien && pasienData) {
+            selectPasien.innerHTML = '<option value="">-- Pilih Pasien --</option>';
+            pasienData.forEach(p => {
+                selectPasien.innerHTML += `<option value="${p.id}">${p.nama || p.nama_pasien || 'Pasien ' + p.id}</option>`;
+            });
+        }
+
+        // Ambil data obat/persediaan
+        const { data: obatData } = await client.from('persediaan').select('*');
+        const selectObat = document.getElementById('item-obat');
+        if (selectObat && obatData) {
+            selectObat.innerHTML = '<option value="">-- Pilih Obat/Alkes --</option>';
+            obatData.forEach(o => {
+                selectObat.innerHTML += `<option value="${o.id}">${o.nama_item || o.name || 'Item ' + o.id}</option>`;
+            });
+        }
+    } catch (err) {
+        console.error("Gagal memuat dropdown:", err.message);
     }
 }
