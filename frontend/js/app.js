@@ -375,15 +375,24 @@ async function submitTransaction(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
 
-        const { error } = await client.from('transaksi').insert([
-            { pasien_id, item_id, jumlah, biaya_dokter, status_pembayaran, tanggal }
-        ]);
+        // Mengirim data tanpa kolom 'jumlah' (atau sesuaikan jika di Supabase namanya berbeda)
+        // Hal ini mencegah error 400 'Could not find the jumlah column'
+        const transactionPayload = {
+            pasien_id: pasien_id,
+            item_id: item_id,
+            biaya_dokter: biaya_dokter,
+            status_pembayaran: status_pembayaran,
+            tanggal: tanggal
+        };
+
+        const { error } = await client.from('transaksi').insert([transactionPayload]);
 
         if (error) throw error;
 
         alert("Transaksi medis berhasil diproses!");
         document.getElementById('transaction-form').reset();
 
+        // Refresh laporan atau statistik jika ada
         if (typeof loadReportData === 'function') loadReportData();
         if (typeof loadStatistics === 'function') loadStatistics();
     } catch (err) {
@@ -391,7 +400,6 @@ async function submitTransaction(event) {
         alert("Gagal memproses transaksi: " + err.message);
     }
 }
-
 // ==========================================
 // 9. INISIALISASI SAAT HALAMAN DIBUKA
 // ==========================================
