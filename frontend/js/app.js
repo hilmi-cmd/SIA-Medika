@@ -2,22 +2,32 @@
 // 1. SISTEM NAVIGASI TAB & OTOMATIS LOAD DATA
 // ==========================================
 function switchTab(tabId) {
+    // Sembunyikan semua section tab
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
         tab.style.display = 'none';
     });
 
+    // Tampilkan hanya tab yang diklik
     const activeTab = document.getElementById(tabId);
     if (activeTab) {
         activeTab.style.display = 'block';
     }
 
-    // Panggil fungsi data otomatis berdasarkan tab yang diklik
-    if (tabId === 'persediaan') loadInventoryData();
-    else if (tabId === 'laporan') loadReportData();
-    else if (tabId === 'statistik') loadStatistics();
-    else if (tabId === 'buku-besar') loadGeneralLedger();
-    else if (tabId === 'transaksi') loadDropdowns();
+    // Panggil fungsi data otomatis sesuai menu yang dibuka
+    if (tabId === 'persediaan') {
+        if (typeof loadInventoryData === 'function') loadInventoryData();
+    } else if (tabId === 'laporan') {
+        if (typeof loadReportData === 'function') loadReportData();
+    } else if (tabId === 'statistik') {
+        if (typeof loadStatistics === 'function') loadStatistics();
+    } else if (tabId === 'buku-besar') {
+        if (typeof loadGeneralLedger === 'function') loadGeneralLedger();
+    } else if (tabId === 'transaksi') {
+        if (typeof loadDropdowns === 'function') loadDropdowns();
+    } else if (tabId === 'jurnal') {
+        if (typeof loadAccountDropdown === 'function') loadAccountDropdown(); // Mengisi pilihan nama akun di form jurnal
+    }
 }
 
 // ==========================================
@@ -85,6 +95,45 @@ async function loadDropdowns() {
         }
     } catch (err) {
         console.error("Gagal memuat dropdown:", err.message);
+    }
+}
+
+async function loadAccountDropdown() {
+    try {
+        const client = window.supabaseClient || supabaseClient;
+        
+        // Ambil data dari tabel master akun di Supabase (misal: 'accounts' atau 'daftar_akun')
+        // Sesuaikan nama tabel jika di database Anda berbeda
+        const { data, error } = await client.from('accounts').select('*');
+        
+        const selectAccount = document.getElementById('jurnal-account');
+        if (!selectAccount) return;
+
+        selectAccount.innerHTML = '<option value="">-- Pilih Akun --</option>';
+
+        if (error || !data || data.length === 0) {
+            // Data cadangan standar akuntansi klinik jika tabel database belum ada
+            const defaultAccounts = [
+                { kode: '1101', nama: 'Kas / Bank' },
+                { kode: '1201', nama: 'Persediaan Obat & Medis' },
+                { kode: '4101', nama: 'Pendapatan Jasa Medis' },
+                { kode: '5101', nama: 'Beban Persediaan / Operasional' }
+            ];
+            defaultAccounts.forEach(acc => {
+                selectAccount.innerHTML += `<option value="${acc.kode}">${acc.kode} - ${acc.nama}</option>`;
+            });
+            return;
+        }
+
+        // Jika data dari Supabase ada
+        data.forEach(acc => {
+            const kode = acc.kode || acc.account_code || acc.id;
+            const nama = acc.nama || acc.account_name || '';
+            selectAccount.innerHTML += `<option value="${kode}">${kode} - ${nama}</option>`;
+        });
+
+    } catch (err) {
+        console.error("Gagal memuat daftar akun:", err.message);
     }
 }
 
