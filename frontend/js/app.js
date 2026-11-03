@@ -5,20 +5,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 function switchTab(targetId) {
-    // 1. Sembunyikan semua elemen ber-class 'content-section'
+    // 1. Sembunyikan semua section yang memiliki kelas 'content-section'
     const sections = document.querySelectorAll('.content-section');
     sections.forEach(sec => {
         sec.style.display = 'none';
     });
 
-    // 2. Tampilkan hanya section yang diklik
-    const activeSection = document.getElementById(targetId);
-    if (activeSection) {
-        activeSection.style.display = 'block';
+    // 2. Tampilkan hanya section yang dipilih
+    const selectedSection = document.getElementById(targetId);
+    if (selectedSection) {
+        selectedSection.style.display = 'block';
     }
 
-    // 3. Jika yang dibuka menu statistik, muat grafiknya
-    if (targetId === 'statistik-section' || targetId === 'statistik') {
+    // 3. Panggil fungsi data otomatis berdasarkan menu yang dibuka
+    if (targetId === 'stok-section' && typeof loadInventoryData === 'function') {
+        loadInventoryData();
+    } else if (targetId === 'laporan-section' && typeof loadReportData === 'function') {
+        loadReportData();
+    } else if (targetId === 'statistik-section' && typeof loadStatistics === 'function') {
         loadStatistics();
     }
 }
