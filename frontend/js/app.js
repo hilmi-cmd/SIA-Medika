@@ -329,18 +329,28 @@ async function submitJournal(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // CATATAN: Pastikan nama kolom di bawah ini (tanggal, referensi, keterangan, account_code, debit, kredit)
-        // sudah disesuaikan dengan nama kolom yang ada di Table Editor Supabase Anda.
-        const { error } = await client.from('journal_entries').insert([
-            { 
-                tanggal: tanggal, 
-                referensi: referensi, 
-                keterangan: keterangan, 
-                account_code: akun, // Ubah menjadi 'akun' jika di database Anda kolomnya bernama 'akun'
-                debit: debit, 
-                kredit: kredit 
-            }
-        ]);
+        // Kirim data dengan berbagai variasi nama kolom agar langsung diterima oleh Supabase
+        const payload = {};
+        
+        // Masukkan data dengan opsi nama kolom yang sering digunakan
+        payload.tanggal = tanggal;
+        payload.date = tanggal;
+        
+        payload.referensi = referensi;
+        payload.ref = referensi;
+        
+        payload.keterangan = keterangan;
+        payload.deskripsi = keterangan;
+        payload.description = keterangan;
+        
+        payload.akun = akun;
+        payload.account_code = akun;
+        payload.account = akun;
+        
+        payload.debit = debit;
+        payload.kredit = kredit;
+
+        const { error } = await client.from('journal_entries').insert([payload]);
 
         if (error) throw error;
 
