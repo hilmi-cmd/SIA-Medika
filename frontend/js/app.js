@@ -333,16 +333,23 @@ async function submitJournal(event) {
         return;
     }
 
+    // Pastikan keterangan terisi agar tidak melanggar aturan NOT NULL di database
+    if (!keterangan || keterangan.trim() === "") {
+        alert("Kolom Keterangan / Deskripsi wajib diisi!");
+        return;
+    }
+
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // SESUAIKAN NAMA KIRI (key) DENGAN KOLOM DI TABEL SUPABASE ANDA
+        // Gunakan nama kolom 'description' sesuai dengan database Supabase Anda
         const { error } = await client.from('journal_entries').insert([{
-            tanggal: tanggal,         // Cek apakah di Supabase namanya 'date' atau 'tanggal'
-            referensi: referensi,     // Cek apakah di Supabase namanya 'ref' atau 'referensi'
-            account_code: akun,       // Cek apakah di Supabase namanya 'akun' atau 'account_code'
-            debit: debit,             // Cek apakah di Supabase namanya 'debit'
-            credit: kredit            // <-- Ubah 'kredit' menjadi 'credit' jika di Supabase menggunakan bahasa Inggris
+            tanggal: tanggal,
+            referensi: referensi,
+            description: keterangan, // <-- Kolom di Supabase namanya 'description'
+            account_code: akun,
+            debit: debit,
+            kredit: kredit
         }]);
 
         if (error) throw error;
@@ -358,7 +365,6 @@ async function submitJournal(event) {
         alert("Gagal menyimpan jurnal: " + err.message);
     }
 }
-
 // ==========================================
 // 8. FUNGSI SIMPAN TRANSAKSI MEDIS
 // ==========================================
