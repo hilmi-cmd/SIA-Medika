@@ -222,29 +222,63 @@ async function loadStatistics() {
 // ==========================================
 // 6. FUNGSI BUKU BESAR (DENGAN KOLOM AKUN TERPISAH)
 // ==========================================
+// ==========================================
+// FUNGSI BUKU BESAR (GENERAL LEDGER)
+// ==========================================
 async function loadGeneralLedger() {
     try {
         const client = window.supabaseClient || supabaseClient;
+        
+        // Ambil data dari tabel journal_entries di Supabase
         const { data, error } = await client.from('journal_entries').select('*');
         if (error) throw error;
 
         const tbody = document.getElementById('ledger-table-body');
+        const filterSelect = document.getElementById('filter-account');
+        
         if (!tbody) return;
         tbody.innerHTML = '';
 
+        // Isi dropdown filter akun di halaman Buku Besar jika masih kosong
+        if (filterSelect && filterSelect.options.length <= 1) {
+            filterSelect.innerHTML = '<option value="">-- Semua Akun --</option>';
+            const defaultAccounts = [
+                { kode: '1101', nama: 'Kas / Bank' },
+                { kode: '1201', nama: 'Persediaan Obat & Medis' },
+                { kode: '4101', nama: 'Pendapatan Jasa Medis' },
+                { kode: '5101', nama: 'Beban Persediaan / Operasional' }
+            ];
+            defaultAccounts.forEach(acc => {
+                filterSelect.innerHTML += `<option value="${acc.kode}">${acc.kode} - ${acc.nama}</option>`;
+            });
+        }
+
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Belum ada data jurnal.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Belum ada data jurnal / buku besar. Silakan input melalui menu Debit / Kredit (Jurnal).</td></tr>`;
+            return;
+        }
+
+        // Ambil nilai filter akun yang sedang dipilih
+        const selectedAccount = filterSelect ? filterSelect.value : '';
+
+        // Filter data jika pengguna memilih akun tertentu pada dropdown
+        const filteredData = selectedAccount 
+            ? data.filter(item => (item.account_code || item.akun || item.account) === selectedAccount)
+            : data;
+
+        if (filteredData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Tidak ada transaksi untuk akun ini.</td></tr>`;
             return;
         }
 
         let runningBalance = 0;
 
-        data.forEach(entry => {
+        filteredData.forEach(entry => {
             const tgl = entry.tanggal || entry.date || entry.tgl || '-';
             const ref = entry.referensi || entry.ref || entry.no_ref || '-';
             const ket = entry.keterangan || entry.deskripsi || entry.description || entry.memo || '-';
             
-            // Kolom akun dipisahkan dengan jelas
+            // Menangkap data akun agar tampil terpisah di tabel
             const akun = entry.account_code || entry.akun || entry.account || entry.kode_akun || '-';
             
             const debit = Number(entry.debit || entry.jumlah_debit || 0);
