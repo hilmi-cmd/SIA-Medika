@@ -5,36 +5,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => {
-        el.style.display = 'none';
+    // Sembunyikan semua elemen yang punya class 'tab-content'
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.style.display = 'none';
     });
-    
-    document.querySelectorAll('.sidebar .menu-list a').forEach(el => {
-        el.classList.remove('active');
-    });
-    
-    const target = document.getElementById(tabId);
-    if (target) {
-        target.style.display = 'block';
+
+    // Tampilkan tab yang dipilih
+    const activeTab = document.getElementById(tabId);
+    if (activeTab) {
+        activeTab.style.display = 'block';
     }
 
-    const activeLink = document.getElementById(`link-${tabId}`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
-
-    if (tabId === 'persediaan') {
+    // Panggil fungsi data otomatis jika diperlukan
+    if (tabId === 'persediaan' && typeof loadInventoryData === 'function') {
         loadInventoryData();
-    } else if (tabId === 'transaksi' || tabId === 'laporan') {
-        loadPatientDropdown();
-        loadInventoryDropdown();
-        if (tabId === 'laporan') loadReportData();
-    } else if (tabId === 'statistik') {
+    } else if (tabId === 'laporan' && typeof loadReportData === 'function') {
+        loadReportData();
+    } else if (tabId === 'statistik' && typeof loadStatistics === 'function') {
         loadStatistics();
-    } else if (tabId === 'buku-besar') {
-        loadAccountDropdown();
-    } else if (tabId === 'jurnal') {
-        loadAccountDropdownForJournal();
     }
 }
 
