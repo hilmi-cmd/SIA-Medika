@@ -27,12 +27,10 @@ function switchTab(tabId) {
         if (typeof loadDropdowns === 'function') loadDropdowns();
     } else if (tabId === 'jurnal') {
         if (typeof loadAccountDropdown === 'function') loadAccountDropdown(); // Mengisi pilihan nama akun di form jurnal
-    }
-    else if (tabId === 'buku-besar') {
-    if (typeof loadGeneralLedger === 'function') loadGeneralLedger();
-    }
-    else if (tabId === 'jurnal') {
-    if (typeof loadAccountDropdown === 'function') loadAccountDropdown();
+    } else if (tabId === 'buku-besar') {
+        if (typeof loadGeneralLedger === 'function') loadGeneralLedger();
+    } else if (tabId === 'jurnal') {
+        if (typeof loadAccountDropdown === 'function') loadAccountDropdown();
     }
 }
 
