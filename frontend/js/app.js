@@ -4,26 +4,37 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
-function switchTab(targetId) {
-    // 1. Sembunyikan semua section yang memiliki kelas 'content-section'
-    const sections = document.querySelectorAll('.content-section');
-    sections.forEach(sec => {
-        sec.style.display = 'none';
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.style.display = 'none';
     });
-
-    // 2. Tampilkan hanya section yang dipilih
-    const selectedSection = document.getElementById(targetId);
-    if (selectedSection) {
-        selectedSection.style.display = 'block';
+    
+    document.querySelectorAll('.sidebar .menu-list a').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    const target = document.getElementById(tabId);
+    if (target) {
+        target.style.display = 'block';
     }
 
-    // 3. Panggil fungsi data otomatis berdasarkan menu yang dibuka
-    if (targetId === 'stok-section' && typeof loadInventoryData === 'function') {
+    const activeLink = document.getElementById(`link-${tabId}`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+    }
+
+    if (tabId === 'persediaan') {
         loadInventoryData();
-    } else if (targetId === 'laporan-section' && typeof loadReportData === 'function') {
-        loadReportData();
-    } else if (targetId === 'statistik-section' && typeof loadStatistics === 'function') {
+    } else if (tabId === 'transaksi' || tabId === 'laporan') {
+        loadPatientDropdown();
+        loadInventoryDropdown();
+        if (tabId === 'laporan') loadReportData();
+    } else if (tabId === 'statistik') {
         loadStatistics();
+    } else if (tabId === 'buku-besar') {
+        loadAccountDropdown();
+    } else if (tabId === 'jurnal') {
+        loadAccountDropdownForJournal();
     }
 }
 
@@ -45,19 +56,16 @@ async function loadInventoryData() {
         }
 
         data.forEach(item => {
-    // Menangkap berbagai kemungkinan nama kolom harga di database Anda
-    const hargaItem = item.harga || item.harga_satuan || item.price || item.harga_jual || 0;
-    
-    tbody.innerHTML += `
-        <tr>
-            <td>${item.id || '-'}</td>
-            <td>${item.nama_item || item.name || '-'}</td>
-            <td>${item.kategori || '-'}</td>
-            <td>${item.stok || 0}</td>
-            <td>Rp ${Number(hargaItem).toLocaleString('id-ID')}</td>
-        </tr>
-    `;
-});
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.id || item.item_code || '-'}</td>
+                    <td>${item.nama_item || item.name || '-'}</td>
+                    <td>${item.kategori || '-'}</td>
+                    <td>${item.stok || 0}</td>
+                    <td>Rp ${Number(item.harga_satuan || item.price || 0).toLocaleString('id-ID')}</td>
+                </tr>
+            `;
+        });
     } catch (err) {
         console.error("Gagal memuat persediaan:", err.message);
         const tbody = document.getElementById('inventory-table-body');
@@ -196,18 +204,11 @@ async function submitTransaction(event) {
     event.preventDefault();
     const client = window.supabaseClient || supabaseClient;
 
-    // Ambil nilai ID dengan benar dari elemen select dropdown
     const pasienId = document.getElementById('pasien').value;
     const obatId = document.getElementById('item-obat').value;
     const jumlah = parseInt(document.getElementById('jumlah-obat').value) || 1;
     const biayaDokter = parseFloat(document.getElementById('biaya-dokter').value) || 0;
     const status = document.getElementById('status-pembayaran').value;
-
-    // Validasi sederhana pastikan pasien & obat sudah dipilih
-    if (!pasienId || !obatId) {
-        alert("Silakan pilih Pasien dan Item Obat terlebih dahulu!");
-        return;
-    }
 
     try {
         const { error } = await client.from('transaksi').insert([{
@@ -223,21 +224,16 @@ async function submitTransaction(event) {
 
         alert("Transaksi berhasil diproses!");
         document.getElementById('transaction-form').reset();
-        
-        // Refresh otomatis data laporan jika sedang dibuka
-        if (typeof loadReportData === 'function') {
-            loadReportData();
-        }
     } catch (err) {
         console.error("Gagal menyimpan transaksi:", err.message);
         alert("Gagal memproses transaksi: " + err.message);
     }
 }
-// Perbaikan Fungsi Memuat Laporan & Piutang yang Lebih Aman
+
 async function loadReportData() {
     try {
         const client = window.supabaseClient || supabaseClient;
-        const { data, error } = await client.from('transaksi').select('*').order('id', { ascending: false });
+        const { data, error } = await client.from('transaksi').select('*, pasien(nama_pasien)');
         
         if (error) throw error;
 
@@ -251,17 +247,13 @@ async function loadReportData() {
         }
 
         data.forEach(trx => {
+            const namaPasien = trx.pasien?.nama_pasien || trx.pasien_id || 'Umum';
             const totalBiaya = (trx.biaya_dokter || 0);
-            
-            // Pencegahan agar tidak memunculkan undefined
-            const idPasienText = (trx.pasien_id && trx.pasien_id !== 'undefined') ? `ID: ${trx.pasien_id}` : 'Umum';
-            const idObatText = (trx.item_id && trx.item_id !== 'undefined') ? `Obat ID: ${trx.item_id}` : 'Resep Standar';
-
             tbody.innerHTML += `
                 <tr>
                     <td>${trx.tanggal || '-'}</td>
-                    <td>Pasien (${idPasienText})</td>
-                    <td>Pemeriksaan Medis & ${idObatText}</td>
+                    <td>${namaPasien}</td>
+                    <td>Medis & Resep</td>
                     <td>Rp ${Number(totalBiaya).toLocaleString('id-ID')}</td>
                     <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; background: ${trx.status_pembayaran === 'Lunas' ? '#d1fae5; color: #065f46;' : '#fef3c7; color: #92400e;'}">${trx.status_pembayaran || 'Lunas'}</span></td>
                 </tr>
@@ -271,6 +263,7 @@ async function loadReportData() {
         console.error("Gagal memuat laporan:", err.message);
     }
 }
+
 // 8. Validasi & Submit Jurnal
 function validateBalance() {
     const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
@@ -299,71 +292,5 @@ async function submitJournal(event) {
     } else {
         alert("Transaksi berhasil disimpan!");
         document.getElementById('journal-form').reset();
-    }
-}
-let myChart = null; // Variabel untuk menyimpan instance chart agar tidak menumpuk
-
-async function loadStatistics() {
-    try {
-        const client = window.supabaseClient || supabaseClient;
-        
-        // Ambil data transaksi dari Supabase
-        const { data, error } = await client.from('transaksi').select('*');
-        if (error) throw error;
-
-        // Kelompokkan data atau siapkan data dummy jika data masih kosong
-        // Contoh sederhana: Menampilkan tren biaya/pendapatan berdasarkan tanggal
-        const tanggalList = [];
-        const pendapatanList = [];
-
-        if (data && data.length > 0) {
-            data.forEach(trx => {
-                tanggalList.push(trx.tanggal || 'Hari Ini');
-                pendapatanList.push(trx.biaya_dokter || 0);
-            });
-        } else {
-            // Data cadangan jika tabel masih kosong agar grafik tetap tampil rapi
-            tanggalList.push('Belum ada data', 'Belum ada data');
-            pendapatanList.push(0, 0);
-        }
-
-        const ctx = document.getElementById('grafikPendapatan');
-        if (!ctx) return;
-
-        // Hancurkan chart lama jika sudah ada supaya tidak bug saat berpindah menu
-        if (myChart) {
-            myChart.destroy();
-        }
-
-        // Buat Grafik Baru menggunakan Chart.js
-        myChart = new Chart(ctx, {
-            type: 'bar', // Bisa diganti 'line' untuk grafik garis
-            data: {
-                labels: tanggalList,
-                datasets: [{
-                    label: 'Pendapatan Jasa Medis (Rp)',
-                    data: pendapatanList,
-                    backgroundColor: 'rgba(13, 148, 136, 0.6)', // Warna teal khas medis
-                    borderColor: 'rgba(13, 148, 136, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'Rp ' + Number(value).toLocaleString('id-ID');
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-    } catch (err) {
-        console.error("Gagal memuat statistik grafik:", err.message);
     }
 }
