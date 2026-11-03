@@ -4,37 +4,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => {
-        el.style.display = 'none';
+function switchTab(targetId) {
+    // 1. Sembunyikan semua elemen ber-class 'content-section'
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(sec => {
+        sec.style.display = 'none';
     });
-    
-    document.querySelectorAll('.sidebar .menu-list a').forEach(el => {
-        el.classList.remove('active');
-    });
-    
-    const target = document.getElementById(tabId);
-    if (target) {
-        target.style.display = 'block';
+
+    // 2. Tampilkan hanya section yang diklik
+    const activeSection = document.getElementById(targetId);
+    if (activeSection) {
+        activeSection.style.display = 'block';
     }
 
-    const activeLink = document.getElementById(`link-${tabId}`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
-
-    if (tabId === 'persediaan') {
-        loadInventoryData();
-    } else if (tabId === 'transaksi' || tabId === 'laporan') {
-        loadPatientDropdown();
-        loadInventoryDropdown();
-        if (tabId === 'laporan') loadReportData();
-    } else if (tabId === 'statistik') {
+    // 3. Jika yang dibuka menu statistik, muat grafiknya
+    if (targetId === 'statistik-section' || targetId === 'statistik') {
         loadStatistics();
-    } else if (tabId === 'buku-besar') {
-        loadAccountDropdown();
-    } else if (tabId === 'jurnal') {
-        loadAccountDropdownForJournal();
     }
 }
 
