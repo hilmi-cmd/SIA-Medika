@@ -317,6 +317,99 @@ async function loadGeneralLedger() {
 }
 
 // ==========================================
+// FUNGSI VALIDASI KESEIMBANGAN JURNAL
+// ==========================================
+function validateBalance() {
+    const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
+    const kredit = parseFloat(document.getElementById('jurnal-credit').value) || 0;
+    const warning = document.getElementById('balance-warning');
+
+    if (!warning) return;
+
+    if (debit !== kredit && (debit > 0 || kredit > 0)) {
+        warning.textContent = "Peringatan: Jumlah Debit dan Kredit belum seimbang (balance)!";
+    } else {
+        warning.textContent = "";
+    }
+}
+
+// ==========================================
+// FUNGSI SIMPAN JURNAL (DEBIT / KREDIT)
+// ==========================================
+async function submitJournal(event) {
+    event.preventDefault();
+    
+    const tanggal = document.getElementById('jurnal-date').value;
+    const referensi = document.getElementById('jurnal-ref').value;
+    const keterangan = document.getElementById('jurnal-desc').value;
+    const akun = document.getElementById('jurnal-account').value;
+    const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
+    const kredit = parseFloat(document.getElementById('jurnal-credit').value) || 0;
+
+    if (debit === 0 && kredit === 0) {
+        alert("Nilai debit atau kredit tidak boleh kosong semua!");
+        return;
+    }
+
+    try {
+        const client = window.supabaseClient || supabaseClient;
+        
+        // Simpan ke tabel journal_entries di Supabase
+        const { error } = await client.from('journal_entries').insert([
+            { tanggal, referensi, keterangan, akun, debit, kredit }
+        ]);
+
+        if (error) throw error;
+
+        alert("Jurnal transaksi berhasil disimpan!");
+        document.getElementById('journal-form').reset();
+        
+        // Refresh buku besar jika sedang dibuka
+        if (typeof loadGeneralLedger === 'function') {
+            loadGeneralLedger();
+        }
+    } catch (err) {
+        console.error("Gagal menyimpan jurnal:", err.message);
+        alert("Gagal menyimpan jurnal: " + err.message);
+    }
+}
+
+// ==========================================
+// FUNGSI SIMPAN TRANSAKSI MEDIS
+// ==========================================
+async function submitTransaction(event) {
+    event.preventDefault();
+
+    const pasien_id = document.getElementById('pasien').value;
+    const item_id = document.getElementById('item-obat').value;
+    const jumlah = parseInt(document.getElementById('jumlah-obat').value) || 1;
+    const biaya_dokter = parseFloat(document.getElementById('biaya-dokter').value) || 0;
+    const status_pembayaran = document.getElementById('status-pembayaran').value;
+    const tanggal = new Date().toISOString().split('T')[0];
+
+    try {
+        const client = window.supabaseClient || supabaseClient;
+
+        // Simpan ke tabel transaksi di Supabase
+        const { error } = await client.from('transaksi').insert([
+            { pasien_id, item_id, jumlah, biaya_dokter, status_pembayaran, tanggal }
+        ]);
+
+        if (error) throw error;
+
+        alert("Transaksi medis berhasil diproses!");
+        document.getElementById('transaction-form').reset();
+
+        // Refresh laporan atau statistik jika ada
+        if (typeof loadReportData === 'function') loadReportData();
+        if (typeof loadStatistics === 'function') loadStatistics();
+    } catch (err) {
+        console.error("Gagal memproses transaksi:", err.message);
+        alert("Gagal memproses transaksi: " + err.message);
+    }
+}
+
+// ==========================================
 // 7. INISIALISASI SAAT HALAMAN DIBUKA
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
