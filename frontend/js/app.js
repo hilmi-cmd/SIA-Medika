@@ -11,9 +11,7 @@ function switchTab(tabId) {
     // Tampilkan hanya tab yang diklik
     const activeTab = document.getElementById(tabId);
     if (activeTab) {
-        activeTab.style.display = 'block'; // Memastikan section muncul (tidak blank)
-    } else {
-        console.warn("Element tab dengan ID tidak ditemukan:", tabId);
+        activeTab.style.display = 'block';
     }
 
     // Panggil fungsi data otomatis sesuai menu yang dibuka
@@ -70,7 +68,7 @@ async function loadInventoryData() {
 }
 
 // ==========================================
-// 3. FUNGSI DROPDOWN PASIEN & OBAT (INPUT TRANSAKSI)
+// 3. FUNGSI DROPDOWN (PASIEN, OBAT, & AKUN)
 // ==========================================
 async function loadDropdowns() {
     try {
@@ -102,7 +100,6 @@ async function loadDropdowns() {
 
 async function loadAccountDropdown() {
     try {
-        const client = window.supabaseClient || supabaseClient;
         const selectAccount = document.getElementById('jurnal-account');
         if (!selectAccount) return;
 
@@ -223,7 +220,7 @@ async function loadStatistics() {
 }
 
 // ==========================================
-// FUNGSI BUKU BESAR (GENERAL LEDGER)
+// 6. FUNGSI BUKU BESAR (DENGAN KOLOM AKUN TERPISAH)
 // ==========================================
 async function loadGeneralLedger() {
     try {
@@ -247,8 +244,8 @@ async function loadGeneralLedger() {
             const ref = entry.referensi || entry.ref || entry.no_ref || '-';
             const ket = entry.keterangan || entry.deskripsi || entry.description || entry.memo || '-';
             
-            // Menangkap berbagai kemungkinan nama kolom akun dari database
-            const akun = entry.account_code || entry.akun || entry.account || entry.kode_akun || '1201';
+            // Kolom akun dipisahkan dengan jelas
+            const akun = entry.account_code || entry.akun || entry.account || entry.kode_akun || '-';
             
             const debit = Number(entry.debit || entry.jumlah_debit || 0);
             const kredit = Number(entry.kredit || entry.jumlah_kredit || 0);
@@ -274,7 +271,7 @@ async function loadGeneralLedger() {
 }
 
 // ==========================================
-// FUNGSI VALIDASI KESEIMBANGAN JURNAL
+// 7. FUNGSI VALIDASI & SIMPAN JURNAL
 // ==========================================
 function validateBalance() {
     const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
@@ -290,9 +287,6 @@ function validateBalance() {
     }
 }
 
-// ==========================================
-// FUNGSI SIMPAN JURNAL (DEBIT / KREDIT)
-// ==========================================
 async function submitJournal(event) {
     event.preventDefault();
     
@@ -311,7 +305,6 @@ async function submitJournal(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // Menggunakan objek payload standar yang mencakup semua kemungkinan nama kolom
         const { error } = await client.from('journal_entries').insert([{
             tanggal: tanggal,
             referensi: referensi,
@@ -331,12 +324,12 @@ async function submitJournal(event) {
         }
     } catch (err) {
         console.error("Gagal menyimpan jurnal:", err.message);
-        alert("Gagal menyimpan jurnal. Pastikan struktur tabel di Supabase sudah sesuai.");
+        alert("Gagal menyimpan jurnal: " + err.message);
     }
 }
 
 // ==========================================
-// FUNGSI SIMPAN TRANSAKSI MEDIS
+// 8. FUNGSI SIMPAN TRANSAKSI MEDIS
 // ==========================================
 async function submitTransaction(event) {
     event.preventDefault();
@@ -351,7 +344,6 @@ async function submitTransaction(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
 
-        // Simpan ke tabel transaksi di Supabase
         const { error } = await client.from('transaksi').insert([
             { pasien_id, item_id, jumlah, biaya_dokter, status_pembayaran, tanggal }
         ]);
@@ -361,7 +353,6 @@ async function submitTransaction(event) {
         alert("Transaksi medis berhasil diproses!");
         document.getElementById('transaction-form').reset();
 
-        // Refresh laporan atau statistik jika ada
         if (typeof loadReportData === 'function') loadReportData();
         if (typeof loadStatistics === 'function') loadStatistics();
     } catch (err) {
@@ -371,9 +362,10 @@ async function submitTransaction(event) {
 }
 
 // ==========================================
-// 7. INISIALISASI SAAT HALAMAN DIBUKA
+// 9. INISIALISASI SAAT HALAMAN DIBUKA
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     loadInventoryData();
     loadDropdowns();
+    loadAccountDropdown();
 });
