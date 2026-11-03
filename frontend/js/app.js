@@ -312,3 +312,69 @@ async function submitJournal(event) {
         document.getElementById('journal-form').reset();
     }
 }
+let myChart = null; // Variabel untuk menyimpan instance chart agar tidak menumpuk
+
+async function loadStatistics() {
+    try {
+        const client = window.supabaseClient || supabaseClient;
+        
+        // Ambil data transaksi dari Supabase
+        const { data, error } = await client.from('transaksi').select('*');
+        if (error) throw error;
+
+        // Kelompokkan data atau siapkan data dummy jika data masih kosong
+        // Contoh sederhana: Menampilkan tren biaya/pendapatan berdasarkan tanggal
+        const tanggalList = [];
+        const pendapatanList = [];
+
+        if (data && data.length > 0) {
+            data.forEach(trx => {
+                tanggalList.push(trx.tanggal || 'Hari Ini');
+                pendapatanList.push(trx.biaya_dokter || 0);
+            });
+        } else {
+            // Data cadangan jika tabel masih kosong agar grafik tetap tampil rapi
+            tanggalList.push('Belum ada data', 'Belum ada data');
+            pendapatanList.push(0, 0);
+        }
+
+        const ctx = document.getElementById('grafikPendapatan');
+        if (!ctx) return;
+
+        // Hancurkan chart lama jika sudah ada supaya tidak bug saat berpindah menu
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        // Buat Grafik Baru menggunakan Chart.js
+        myChart = new Chart(ctx, {
+            type: 'bar', // Bisa diganti 'line' untuk grafik garis
+            data: {
+                labels: tanggalList,
+                datasets: [{
+                    label: 'Pendapatan Jasa Medis (Rp)',
+                    data: pendapatanList,
+                    backgroundColor: 'rgba(13, 148, 136, 0.6)', // Warna teal khas medis
+                    borderColor: 'rgba(13, 148, 136, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + Number(value).toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (err) {
+        console.error("Gagal memuat statistik grafik:", err.message);
+    }
+}
