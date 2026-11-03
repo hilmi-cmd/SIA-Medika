@@ -31,6 +31,9 @@ function switchTab(tabId) {
     else if (tabId === 'buku-besar') {
     if (typeof loadGeneralLedger === 'function') loadGeneralLedger();
     }
+    else if (tabId === 'jurnal') {
+    if (typeof loadAccountDropdown === 'function') loadAccountDropdown();
+    }
 }
 
 // ==========================================
@@ -104,39 +107,21 @@ async function loadDropdowns() {
 async function loadAccountDropdown() {
     try {
         const client = window.supabaseClient || supabaseClient;
-        
-        // Ambil data dari tabel master akun di Supabase (misal: 'accounts' atau 'daftar_akun')
-        // Sesuaikan nama tabel jika di database Anda berbeda
-        const { data, error } = await client.from('accounts').select('*');
-        
         const selectAccount = document.getElementById('jurnal-account');
         if (!selectAccount) return;
 
         selectAccount.innerHTML = '<option value="">-- Pilih Akun --</option>';
-
-        if (error || !data || data.length === 0) {
-            // Data cadangan standar akuntansi klinik jika tabel database belum ada
-            const defaultAccounts = [
-                { kode: '1101', nama: 'Kas / Bank' },
-                { kode: '1201', nama: 'Persediaan Obat & Medis' },
-                { kode: '4101', nama: 'Pendapatan Jasa Medis' },
-                { kode: '5101', nama: 'Beban Persediaan / Operasional' }
-            ];
-            defaultAccounts.forEach(acc => {
-                selectAccount.innerHTML += `<option value="${acc.kode}">${acc.kode} - ${acc.nama}</option>`;
-            });
-            return;
-        }
-
-        // Jika data dari Supabase ada
-        data.forEach(acc => {
-            const kode = acc.kode || acc.account_code || acc.id;
-            const nama = acc.nama || acc.account_name || '';
-            selectAccount.innerHTML += `<option value="${kode}">${kode} - ${nama}</option>`;
+        const defaultAccounts = [
+            { kode: '1101', nama: 'Kas / Bank' },
+            { kode: '1201', nama: 'Persediaan Obat & Medis' },
+            { kode: '4101', nama: 'Pendapatan Jasa Medis' },
+            { kode: '5101', nama: 'Beban Persediaan / Operasional' }
+        ];
+        defaultAccounts.forEach(acc => {
+            selectAccount.innerHTML += `<option value="${acc.kode}">${acc.kode} - ${acc.nama}</option>`;
         });
-
     } catch (err) {
-        console.error("Gagal memuat daftar akun:", err.message);
+        console.error("Gagal memuat akun:", err.message);
     }
 }
 
@@ -329,28 +314,15 @@ async function submitJournal(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // Kirim data dengan berbagai variasi nama kolom agar langsung diterima oleh Supabase
-        const payload = {};
-        
-        // Masukkan data dengan opsi nama kolom yang sering digunakan
-        payload.tanggal = tanggal;
-        payload.date = tanggal;
-        
-        payload.referensi = referensi;
-        payload.ref = referensi;
-        
-        payload.keterangan = keterangan;
-        payload.deskripsi = keterangan;
-        payload.description = keterangan;
-        
-        payload.akun = akun;
-        payload.account_code = akun;
-        payload.account = akun;
-        
-        payload.debit = debit;
-        payload.kredit = kredit;
-
-        const { error } = await client.from('journal_entries').insert([payload]);
+        // Menggunakan objek payload standar yang mencakup semua kemungkinan nama kolom
+        const { error } = await client.from('journal_entries').insert([{
+            tanggal: tanggal,
+            referensi: referensi,
+            keterangan: keterangan,
+            account_code: akun,
+            debit: debit,
+            kredit: kredit
+        }]);
 
         if (error) throw error;
 
@@ -362,7 +334,7 @@ async function submitJournal(event) {
         }
     } catch (err) {
         console.error("Gagal menyimpan jurnal:", err.message);
-        alert("Gagal menyimpan jurnal: " + err.message);
+        alert("Gagal menyimpan jurnal. Pastikan struktur tabel di Supabase sudah sesuai.");
     }
 }
 
