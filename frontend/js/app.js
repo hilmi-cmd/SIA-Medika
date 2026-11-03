@@ -11,7 +11,9 @@ function switchTab(tabId) {
     // Tampilkan hanya tab yang diklik
     const activeTab = document.getElementById(tabId);
     if (activeTab) {
-        activeTab.style.display = 'block';
+        activeTab.style.display = 'block'; // Memastikan section muncul (tidak blank)
+    } else {
+        console.warn("Element tab dengan ID tidak ditemukan:", tabId);
     }
 
     // Panggil fungsi data otomatis sesuai menu yang dibuka
@@ -26,7 +28,7 @@ function switchTab(tabId) {
     } else if (tabId === 'transaksi') {
         if (typeof loadDropdowns === 'function') loadDropdowns();
     } else if (tabId === 'jurnal') {
-        if (typeof loadAccountDropdown === 'function') loadAccountDropdown(); // Mengisi pilihan nama akun di form jurnal
+        if (typeof loadAccountDropdown === 'function') loadAccountDropdown();
     }
 }
 
