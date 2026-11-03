@@ -248,62 +248,36 @@ async function loadGeneralLedger() {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // 1. Ambil data dari tabel jurnal di Supabase (sesuaikan nama tabel jika berbeda, misal 'journal_entries' atau 'jurnal')
+        // Ambil data dari tabel jurnal/buku besar di Supabase
         const { data, error } = await client.from('journal_entries').select('*');
         if (error) throw error;
 
         const tbody = document.getElementById('ledger-table-body');
-        const filterSelect = document.getElementById('filter-account');
-        
         if (!tbody) return;
         tbody.innerHTML = '';
 
-        // 2. Isi dropdown filter akun di halaman Buku Besar jika belum ada isinya
-        if (filterSelect && filterSelect.options.length <= 1) {
-            filterSelect.innerHTML = '<option value="">-- Semua Akun --</option>';
-            const defaultAccounts = [
-                { kode: '1101', nama: 'Kas / Bank' },
-                { kode: '1201', nama: 'Persediaan Obat & Medis' },
-                { kode: '4101', nama: 'Pendapatan Jasa Medis' },
-                { kode: '5101', nama: 'Beban Persediaan / Operasional' }
-            ];
-            defaultAccounts.forEach(acc => {
-                filterSelect.innerHTML += `<option value="${acc.kode}">${acc.kode} - ${acc.nama}</option>`;
-            });
-        }
-
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Belum ada data transaksi jurnal.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">Belum ada data jurnal. Silakan input melalui menu Debit / Kredit (Jurnal).</td></tr>`;
             return;
         }
 
-        // 3. Ambil nilai filter akun yang dipilih pengguna
-        const selectedAccount = filterSelect ? filterSelect.value : '';
-
-        // 4. Filter data jika pengguna memilih akun tertentu
-        const filteredData = selectedAccount 
-            ? data.filter(item => item.akun === selectedAccount || item.account_code === selectedAccount)
-            : data;
-
-        if (filteredData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Tidak ada transaksi untuk akun ini.</td></tr>`;
-            return;
-        }
-
-        // 5. Render data ke dalam tabel Buku Besar
         let runningBalance = 0;
-        filteredData.forEach(entry => {
-            const debit = Number(entry.debit || 0);
-            const kredit = Number(entry.kredit || 0);
-            
-            // Asumsi sederhana perhitungan saldo berjalan (bisa disesuaikan posisi normal akun)
+
+        data.forEach(entry => {
+            // Membaca fleksibel berbagai kemungkinan nama kolom dari database
+            const tgl = entry.tanggal || entry.date || '-';
+            const ref = entry.referensi || entry.no_ref || entry.ref || '-';
+            const ket = entry.keterangan || entry.deskripsi || entry.description || '-';
+            const debit = Number(entry.debit || entry.jumlah_debit || 0);
+            const kredit = Number(entry.kredit || entry.jumlah_kredit || 0);
+
             runningBalance += (debit - kredit);
 
             tbody.innerHTML += `
                 <tr>
-                    <td>${entry.tanggal || '-'}</td>
-                    <td>${entry.referensi || '-'}</td>
-                    <td>${entry.keterangan || '-'}</td>
+                    <td>${tgl}</td>
+                    <td>${ref}</td>
+                    <td>${ket}</td>
                     <td>Rp ${debit.toLocaleString('id-ID')}</td>
                     <td>Rp ${kredit.toLocaleString('id-ID')}</td>
                     <td>Rp ${runningBalance.toLocaleString('id-ID')}</td>
@@ -313,6 +287,10 @@ async function loadGeneralLedger() {
 
     } catch (err) {
         console.error("Gagal memuat buku besar:", err.message);
+        const tbody = document.getElementById('ledger-table-body');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">Gagal memuat data dari database.</td></tr>`;
+        }
     }
 }
 
