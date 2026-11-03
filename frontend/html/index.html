@@ -31,11 +31,13 @@
             <p style="color: #64748b;">Manajemen Persediaan, Jasa Medis, dan Piutang Asuransi</p>
         </header>
         
-<div id="statistik-section" class="content-section">
+<!-- Bagian Statistik -->
+<div id="statistik-section" class="content-section" style="display: none;">
     <h2>Statistik & Grafik Keuangan Klinik</h2>
     <p>Ringkasan visual data pendapatan dan persediaan medis.</p>
     
-    <div style="width: 80%; margin: 20px auto;">
+    <!-- Beri pembatas wrapper dengan max-width agar grafiknya tidak melar -->
+    <div style="max-width: 700px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         <canvas id="grafikPendapatan"></canvas>
     </div>
 </div>
