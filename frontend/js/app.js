@@ -320,7 +320,7 @@ async function submitJournal(event) {
     const tanggal = document.getElementById('jurnal-date').value;
     const referensi = document.getElementById('jurnal-ref').value;
     const keterangan = document.getElementById('jurnal-desc').value;
-    const akun = document.getElementById('jurnal-account').value;
+    const akun = document.getElementById('jurnal-account').value; // Nilai dari dropdown akun
     const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
     const kredit = parseFloat(document.getElementById('jurnal-credit').value) || 0;
 
@@ -332,9 +332,17 @@ async function submitJournal(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // Simpan ke tabel journal_entries di Supabase
+        // SESUAIKAN KATA 'akun' DI BAWAH INI DENGAN NAMA KOLOM DI SUPABASE 
+        // (Contoh: jika di Supabase namanya 'account_code', ganti 'akun: akun' menjadi 'account_code: akun')
         const { error } = await client.from('journal_entries').insert([
-            { tanggal, referensi, keterangan, akun, debit, kredit }
+            { 
+                tanggal: tanggal, 
+                referensi: referensi, 
+                keterangan: keterangan, 
+                account_code: akun, // <-- Ganti 'akun' dengan nama kolom asli di Supabase jika berbeda (misal: 'account' atau 'kode_akun')
+                debit: debit, 
+                kredit: kredit 
+            }
         ]);
 
         if (error) throw error;
@@ -342,7 +350,6 @@ async function submitJournal(event) {
         alert("Jurnal transaksi berhasil disimpan!");
         document.getElementById('journal-form').reset();
         
-        // Refresh buku besar jika sedang dibuka
         if (typeof loadGeneralLedger === 'function') {
             loadGeneralLedger();
         }
