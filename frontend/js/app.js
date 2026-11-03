@@ -1,29 +1,34 @@
 // Jalankan saat halaman selesai dimuat
 document.addEventListener("DOMContentLoaded", () => {
-    loadInventoryData();
+    if (typeof loadInventoryData === 'function') loadInventoryData();
+    if (typeof loadDropdowns === 'function') loadDropdowns();
 });
 
 // 1. Fungsi Utama untuk Mengganti Tab dan Menandai Menu Aktif
 function switchTab(tabId) {
-    // Sembunyikan semua elemen yang punya class 'tab-content'
+    // Sembunyikan semua elemen tab-content
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
         tab.style.display = 'none';
     });
 
-    // Tampilkan tab yang dipilih
+    // Tampilkan tab yang aktif
     const activeTab = document.getElementById(tabId);
     if (activeTab) {
         activeTab.style.display = 'block';
     }
 
-    // Panggil fungsi data otomatis jika diperlukan
+    // Panggil fungsi data otomatis berdasarkan tab yang diklik
     if (tabId === 'persediaan' && typeof loadInventoryData === 'function') {
         loadInventoryData();
     } else if (tabId === 'laporan' && typeof loadReportData === 'function') {
         loadReportData();
     } else if (tabId === 'statistik' && typeof loadStatistics === 'function') {
         loadStatistics();
+    } else if (tabId === 'buku-besar' && typeof loadGeneralLedger === 'function') {
+        loadGeneralLedger();
+    } else if (tabId === 'transaksi' && typeof loadDropdowns === 'function') {
+        loadDropdowns(); // Fungsi untuk mengisi pilihan Pasien & Obat di form transaksi
     }
 }
 
@@ -37,30 +42,29 @@ async function loadInventoryData() {
 
         const tbody = document.getElementById('inventory-table-body');
         if (!tbody) return;
-        
+
         tbody.innerHTML = '';
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data persediaan di database.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Belum ada data persediaan.</td></tr>`;
             return;
         }
 
         data.forEach(item => {
-    tbody.innerHTML += `
-        <tr>
-            <td>${item.id || item.item_code || '-'}</td>
-            <td>${item.nama_item || item.name || '-'}</td>
-            <td>${item.kategori || '-'}</td>
-            <td>${item.stok || 0}</td>
-            <td>Rp ${Number(item.harga_satuan || item.price || item.harga || 0).toLocaleString('id-ID')}</td>
-        </tr>
-    `;
-});
+            // Menangkap berbagai kemungkinan nama kolom harga di database
+            const hargaItem = item.harga || item.harga_satuan || item.price || item.harga_jual || 0;
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.id || '-'}</td>
+                    <td>${item.nama_item || item.name || '-'}</td>
+                    <td>${item.kategori || '-'}</td>
+                    <td>${item.stok || 0}</td>
+                    <td>Rp ${Number(hargaItem).toLocaleString('id-ID')}</td>
+                </tr>
+            `;
+        });
     } catch (err) {
-        console.error("Gagal memuat persediaan:", err.message);
-        const tbody = document.getElementById('inventory-table-body');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error: ${err.message}</td></tr>`;
-        }
+        console.error("Gagal memuat data persediaan:", err.message);
     }
 }
 
