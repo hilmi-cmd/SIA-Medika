@@ -220,9 +220,6 @@ async function loadStatistics() {
 }
 
 // ==========================================
-// 6. FUNGSI BUKU BESAR (DENGAN KOLOM AKUN TERPISAH)
-// ==========================================
-// ==========================================
 // FUNGSI BUKU BESAR (GENERAL LEDGER)
 // ==========================================
 async function loadGeneralLedger() {
@@ -339,15 +336,15 @@ async function submitJournal(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // SESUAIKAN KATA 'keterangan' DI BAWAH INI DENGAN KOLOM ASLI DI SUPABASE
-        // (Contoh: jika di Supabase kolomnya bernama 'deskripsi', ganti 'keterangan: keterangan' menjadi 'deskripsi: keterangan')
+        // SESUAIKAN NAMA KIRI (key) DENGAN KOLOM DI TABEL SUPABASE ANDA
         const { error } = await client.from('journal_entries').insert([{
-    tanggal: tanggal,
-    referensi: referensi,
-    account_code: akun,
-    debit: debit,
-    kredit: kredit
-    }]);
+            tanggal: tanggal,         // Cek apakah di Supabase namanya 'date' atau 'tanggal'
+            referensi: referensi,     // Cek apakah di Supabase namanya 'ref' atau 'referensi'
+            account_code: akun,       // Cek apakah di Supabase namanya 'akun' atau 'account_code'
+            debit: debit,             // Cek apakah di Supabase namanya 'debit'
+            credit: kredit            // <-- Ubah 'kredit' menjadi 'credit' jika di Supabase menggunakan bahasa Inggris
+        }]);
+
         if (error) throw error;
 
         alert("Jurnal transaksi berhasil disimpan!");
