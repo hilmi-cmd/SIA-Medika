@@ -11,17 +11,17 @@
 
     <!-- SIDEBAR KIRI -->
     <aside class="sidebar">
-    <div class="logo">SIA Medika</div>
-    <ul class="sidebar-menu" style="list-style: none; padding: 0;">
-    <li style="padding: 10px; cursor: pointer;" onclick="switchTab('beranda')">Beranda</li>
-    <li style="padding: 10px; cursor: pointer;" onclick="switchTab('persediaan')">Stok Persediaan</li>
-    <li style="padding: 10px; cursor: pointer;" onclick="switchTab('transaksi')">Input Transaksi</li>
-    <li style="padding: 10px; cursor: pointer;" onclick="switchTab('laporan')">Laporan & Piutang</li>
-    <li style="padding: 10px; cursor: pointer;" onclick="switchTab('statistik')">Statistik</li>
-    <li style="padding: 10px; cursor: pointer;" onclick="switchTab('buku-besar')">Buku Besar</li>
-    <li style="padding: 10px; cursor: pointer;" onclick="switchTab('jurnal')">Debit / Kredit (Jurnal)</li>
-    </ul>
-</aside>
+        <div class="logo">SIA Medika</div>
+        <ul class="sidebar-menu" style="list-style: none; padding: 0;">
+            <li style="padding: 10px; cursor: pointer;" onclick="switchTab('beranda')">Beranda</li>
+            <li style="padding: 10px; cursor: pointer;" onclick="switchTab('persediaan')">Stok Persediaan</li>
+            <li style="padding: 10px; cursor: pointer;" onclick="switchTab('transaksi')">Input Transaksi</li>
+            <li style="padding: 10px; cursor: pointer;" onclick="switchTab('laporan')">Laporan & Piutang</li>
+            <li style="padding: 10px; cursor: pointer;" onclick="switchTab('statistik')">Statistik</li>
+            <li style="padding: 10px; cursor: pointer;" onclick="switchTab('buku-besar')">Buku Besar</li>
+            <li style="padding: 10px; cursor: pointer;" onclick="switchTab('jurnal')">Debit / Kredit (Jurnal)</li>
+        </ul>
+    </aside>
 
     <!-- KONTEN UTAMA DI KANAN -->
     <main class="main-content">
@@ -130,53 +130,54 @@
                 <label for="filter-account" style="font-weight: 500; margin-right: 10px;">Pilih Akun:</label>
                 <select id="filter-account" onchange="loadGeneralLedger()" style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1;"></select>
             </div>
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Tanggal</th>
-            <th>Referensi</th>
-            <th>Akun</th>
-            <th>Keterangan</th>
-            <th>Debit (Rp)</th>
-            <th>Kredit (Rp)</th>
-            <th>Saldo (Rp)</th>
-        </tr>
-    </thead>
-    <tbody id="ledger-table-body"></tbody>
-</table>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Referensi</th>
+                        <th>Akun</th>
+                        <th>Keterangan</th>
+                        <th>Debit (Rp)</th>
+                        <th>Kredit (Rp)</th>
+                        <th>Saldo (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-table-body"></tbody>
+            </table>
+        </section>
         
         <!-- 7. TAB JURNAL DEBIT / KREDIT -->
-<section id="jurnal" class="tab-content" style="display: none;">
-    <h2>Entri Jurnal Transaksi (Debit & Kredit)</h2>
-    <form id="journal-form" onsubmit="submitJournal(event)" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: 600px; margin-top: 15px;">
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tanggal:</label>
-            <input type="date" id="jurnal-date" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">No. Referensi:</label>
-            <input type="text" id="jurnal-ref" placeholder="Cth: TRX-001" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Keterangan / Deskripsi:</label>
-            <input type="text" id="jurnal-desc" placeholder="Keterangan transaksi..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Akun:</label>
-            <select id="jurnal-account" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required></select>
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Debit (Rp):</label>
-            <input type="number" id="jurnal-debit" value="0" step="0.01" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="validateBalance()">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Kredit (Rp):</label>
-            <input type="number" id="jurnal-credit" value="0" step="0.01" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="validateBalance()">
-        </div>
-        <p id="balance-warning" style="color: #dc2626; font-size: 0.9rem; margin-bottom: 15px;"></p>
-        <button type="submit" style="background-color: #0d9488; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Simpan Transaksi</button>
-    </form>
-</section>
+        <section id="jurnal" class="tab-content" style="display: none;">
+            <h2>Entri Jurnal Transaksi (Debit & Kredit)</h2>
+            <form id="journal-form" onsubmit="submitJournal(event)" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: 600px; margin-top: 15px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tanggal:</label>
+                    <input type="date" id="jurnal-date" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">No. Referensi:</label>
+                    <input type="text" id="jurnal-ref" placeholder="Cth: TRX-001" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Keterangan / Deskripsi:</label>
+                    <input type="text" id="jurnal-desc" placeholder="Keterangan transaksi..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Akun:</label>
+                    <select id="jurnal-account" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" required></select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Debit (Rp):</label>
+                    <input type="number" id="jurnal-debit" value="0" step="0.01" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="validateBalance()">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Kredit (Rp):</label>
+                    <input type="number" id="jurnal-credit" value="0" step="0.01" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="validateBalance()">
+                </div>
+                <p id="balance-warning" style="color: #dc2626; font-size: 0.9rem; margin-bottom: 15px;"></p>
+                <button type="submit" style="background-color: #0d9488; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Simpan Transaksi</button>
+            </form>
+        </section>
 
     </main>
 
