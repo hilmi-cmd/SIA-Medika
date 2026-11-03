@@ -131,19 +131,19 @@
                 <select id="filter-account" onchange="loadGeneralLedger()" style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1;"></select>
             </div>
             <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Referensi</th>
-                        <th>Keterangan</th>
-                        <th>Debit (Rp)</th>
-                        <th>Kredit (Rp)</th>
-                        <th>Saldo (Rp)</th>
-                    </tr>
-                </thead>
-                <tbody id="ledger-table-body"></tbody>
-            </table>
-        </section>
+    <thead>
+        <tr>
+            <th>Tanggal</th>
+            <th>Referensi</th>
+            <th>Akun</th>
+            <th>Keterangan</th>
+            <th>Debit (Rp)</th>
+            <th>Kredit (Rp)</th>
+            <th>Saldo (Rp)</th>
+        </tr>
+    </thead>
+    <tbody id="ledger-table-body"></tbody>
+</table>
 
         <!-- 7. TAB JURNAL DEBIT / KREDIT -->
         <section id="jurnal" class="tab-content" style="display: none;">
@@ -179,21 +179,6 @@
         </section>
 
     </main>
-    
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Tanggal</th>
-            <th>Referensi</th>
-            <th>Akun</th>
-            <th>Keterangan</th>
-            <th>Debit (Rp)</th>
-            <th>Kredit (Rp)</th>
-            <th>Saldo (Rp)</th>
-        </tr>
-    </thead>
-    <tbody id="ledger-table-body"></tbody>
-</table>
 
     <!-- SCRIPT JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
