@@ -247,8 +247,6 @@ async function loadStatistics() {
 async function loadGeneralLedger() {
     try {
         const client = window.supabaseClient || supabaseClient;
-        
-        // Ambil data dari tabel jurnal/buku besar di Supabase
         const { data, error } = await client.from('journal_entries').select('*');
         if (error) throw error;
 
@@ -257,17 +255,18 @@ async function loadGeneralLedger() {
         tbody.innerHTML = '';
 
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">Belum ada data jurnal. Silakan input melalui menu Debit / Kredit (Jurnal).</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Belum ada data jurnal.</td></tr>`;
             return;
         }
 
         let runningBalance = 0;
 
         data.forEach(entry => {
-            // Membaca fleksibel berbagai kemungkinan nama kolom dari database
-            const tgl = entry.tanggal || entry.date || '-';
-            const ref = entry.referensi || entry.no_ref || entry.ref || '-';
-            const ket = entry.keterangan || entry.deskripsi || entry.description || '-';
+            // Membaca fleksibel berbagai kemungkinan nama kolom di Supabase
+            const tgl = entry.tanggal || entry.date || entry.tgl || '-';
+            const ref = entry.referensi || entry.ref || entry.no_ref || '-';
+            const ket = entry.keterangan || entry.deskripsi || entry.description || entry.memo || '-';
+            const akun = entry.account_code || entry.akun || entry.account || '-';
             const debit = Number(entry.debit || entry.jumlah_debit || 0);
             const kredit = Number(entry.kredit || entry.jumlah_kredit || 0);
 
@@ -277,6 +276,7 @@ async function loadGeneralLedger() {
                 <tr>
                     <td>${tgl}</td>
                     <td>${ref}</td>
+                    <td>${akun}</td>
                     <td>${ket}</td>
                     <td>Rp ${debit.toLocaleString('id-ID')}</td>
                     <td>Rp ${kredit.toLocaleString('id-ID')}</td>
@@ -287,10 +287,6 @@ async function loadGeneralLedger() {
 
     } catch (err) {
         console.error("Gagal memuat buku besar:", err.message);
-        const tbody = document.getElementById('ledger-table-body');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">Gagal memuat data dari database.</td></tr>`;
-        }
     }
 }
 
@@ -320,7 +316,7 @@ async function submitJournal(event) {
     const tanggal = document.getElementById('jurnal-date').value;
     const referensi = document.getElementById('jurnal-ref').value;
     const keterangan = document.getElementById('jurnal-desc').value;
-    const akun = document.getElementById('jurnal-account').value; // Nilai dari dropdown akun
+    const akun = document.getElementById('jurnal-account').value;
     const debit = parseFloat(document.getElementById('jurnal-debit').value) || 0;
     const kredit = parseFloat(document.getElementById('jurnal-credit').value) || 0;
 
@@ -332,14 +328,13 @@ async function submitJournal(event) {
     try {
         const client = window.supabaseClient || supabaseClient;
         
-        // SESUAIKAN KATA 'akun' DI BAWAH INI DENGAN NAMA KOLOM DI SUPABASE 
-        // (Contoh: jika di Supabase namanya 'account_code', ganti 'akun: akun' menjadi 'account_code: akun')
+        // SESUAIKAN NAMA KIRI (key) BERIKUT DENGAN KOLOM ASLI DI TABEL SUPABASE ANDA
         const { error } = await client.from('journal_entries').insert([
             { 
-                tanggal: tanggal, 
-                referensi: referensi, 
-                keterangan: keterangan, 
-                account_code: akun, // <-- Ganti 'akun' dengan nama kolom asli di Supabase jika berbeda (misal: 'account' atau 'kode_akun')
+                tanggal: tanggal,         // Ganti 'tanggal' jika di Supabase namanya 'date'
+                referensi: referensi,     // Ganti 'referensi' jika di Supabase namanya 'ref'
+                keterangan: keterangan,   // Ganti 'keterangan' jika di Supabase namanya 'deskripsi'
+                account_code: akun,       // Ganti 'account_code' jika di Supabase namanya 'akun'
                 debit: debit, 
                 kredit: kredit 
             }
